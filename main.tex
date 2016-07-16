@@ -30,6 +30,20 @@
 
 \usepackage{hyperref}
 
+\usepackage[dvipsnames]{xcolor}
+\usepackage{listings}
+\lstloadlanguages{Ruby}
+\lstset{
+  basicstyle=\ttfamily\color{black},
+  commentstyle = \ttfamily\color{gray},
+  keywordstyle=\ttfamily\color{red},
+  stringstyle=\color{blue}
+}
+\renewcommand{\lstlistingname}{Kuvio}
+
+\definecolor{codegray}{gray}{0.9}
+\newcommand{\code}[1]{\colorbox{codegray}{\texttt{#1}}}
+
 \begin{document}
   \input{cover}
 	

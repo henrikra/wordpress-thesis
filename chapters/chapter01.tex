@@ -1,15 +1,45 @@
-\chapter{Pääluvun otsikko}
+\chapter{Ohjelmointiympäristö}
 
-\section{Alaluvun otsikko}
-Otsikon jälkeen tulee tekstiä tai uusi alaotsikko. Kuvien alapuolelle ja taulukkojen yläpuolelle tulee numero, seloste ja tarvittaessa lähdeviite \cite{examplesite2}.
+\section{Ongelma}
+Yleisin ongelma monen kehittäjän tiimissä on ohjelmointiympäristön erilaisuus. Tämä ilmenee siten, että joillain kehittäjilla on käyttöjärjestelmänä Linux, toisilla OS X ja lopuilla Windows. Usein projekteissa on pitkät asennusohjeet, jossa kerrotaan tarkasti mitkä ohjelmat pitää asentaa ja mitkä versiot niistä. Usein ohjelmien asennus on erilaista eri käyttöjärjestelmillä. Ei ole epätavallista, että ympäristön pystytykseen voi mennä muutama työpäivä. Usein tähän saattaa mennä henkilötyötunteina paljon sillä usein tarvitsee kysyä apua aikaisemmin projektissa olleelta henkilöltä. \cite{examplesite}
 
-Kuva merkitään Kuva-tyylin mukaiseksi; tämä on tarpeen, jottei kuvan ja sen otsikon väliin voi tulla sivunvaihtoa. Kuvan selite merkitään Kuvan selite -tyylin mukaiseksi. Tällöin kuvat numeroituvat automaattisesti \cite{examplesite}.
+\section{Ratkaisu}
+Jotta kaikille kehittäjille saadaan täysin samanlaiset kehitysympäristöt niin yksi ratkaisu on virtuaalikoneet. VirtualBox tai WMware ovat esimerkkejä virtuaalikoneohjelmista. Virtuaalikoneet ovat täysiverisiä käyttöjärjestelmiä isäntäkoneen eli käyttäjän koneen sisällä. Usein kehityskäyttöjärjestelmäksi valitaan jokin Linux paketti esim Ubuntu. Näin kaikille kehittäjille saadaan sama käyttöjärjestelmä ympäristö, jossa kehitys tapahtuu.
+
+\section{Vagrant}
+Vagrantin avulla voidaan luoda virtuaalikoneita helposti terminaalista. Vagrant on yksinkertainen ohjelma, joka vain käskyttää VirtualBoxia. Tästä syystä VirtualBox täytyy olla asennettuna, jotta Vagrant toimii.
+
+Vagranttia kannattaa ajatella vertauskuvan kautta. Kuvitellaan, että Erik haluaa perustaa Subway-ravintolan. Koska Subway on pikaruokaravintolaketju niin on tarkasti määritelty mitä aineksia ruoka-annoksissa saa käyttää, minkälaiset työvaatteet pitää olla ja miten asiakaspalvelu tapahtuu tms. Erik saa itse valita tilan johon perustaa ravintolan. Kun tila on valittu niin seuraavaksi hänen täytyy sisustaa ravintola Subwayn määrittämällä tavalla. Seuraavaksi täytyy hankkia uuni, jääkaappi, mikro ja muut ruuan tekemiseen tarkoitetut välineet. Tässä vaiheessa voidaan huomata, että kaikki hankitut laitteet eivät välttämättä sovi valittuun liiketilaan. Esimerkiksi Erikin valitsema jääkaappi ei mahdu liiketilaan. Paljon yhteensopivuus ongelmia voi syntyä ennen kuin uusi Subway-ravintola voidaan avata. Tämä on luonnollista, koska Subwayn johto ei voi tietää miten kaikki laitteet menevät mihin tahansa liiketilaan.
+
+Kun Subwayn liikejohto huomasi, että uusilla ravintoloiden perustajilla on usein ongelmia ravintolan pystyttämisessä ja sen saamiseksi ohjeiden mukaiseen kuntoon,  he päättivät helpottaa asiaa. He kehittivät uusien ravintoloiden perustajille paketin, josta täytyy vain painaa nappia eikä ravintoloitsijan tarvitse tehdä muuta. Erik kokeili uutta asennuspakettia ja huomasi, että paketista tuli ulos robotti, joka lähti heti rakentamaan liiketilaa ravintolalle. Robotti rakentaa aina samanlaisen tyhjän liiketilan johdon määrittelemällä tavalla. Kun liiketila on valmis niin robotti aloittaa jääkaappien, uunien ja muiden laitteiden asentamisen, jotka ovat välttämättömiä Subway-ravintolan pitäjälle. Kun laitteet ovat asennettu niin liiketila viimeistellään sisustuksella. Robotti tiesi miten asennukset ja sisustaminen piti tehdä, koska sille on määritelty ohje, jota se lukee. Kun robotti on tehnyt kaiken se antaa liiketilan avaimet Erikille, jonka ei tarvitse muuta kuin laittaa uunit päälle niin hän voi aloittaa myymisen.
+
+\subsection{Vagrantin toiminta}
+Vagrant luo isäntäkoneen sisälle virtuaalikoneen. 
+Näin Vagrant toimii \ref{fig:how-vagrant-works}
 
 \begin{figure}[h]
-  \includegraphics[width=\textwidth]{chart}
-  \caption{Metropolian opiskelijoiden lukuvuonna 2009–2010 suorittamat virtuaaliopinnot. Virtuaaliopintojen määrä on ilmaistu opintopisteinä (op).}
-  \label{fig:chart}
+  \includegraphics[width=\textwidth]{how-vagrant-works}
+  \caption{Vagrantin toiminta isäntäkoneen sisällä}
+  \label{fig:how-vagrant-works}
 \end{figure}
+
+\subsection{Vagrantin käyttäminen}
+Ennen Vagrantin käytön aloittamista täytyy VirtualBox ja Vagrant olla asennettuna. Avaamalla terminaalin voit nyt käyttää vagrant-komentoja terminaalissa. Tästä eteenpäin työskennellään koko ajan terminaalissa.
+
+Siirry projektikansioon ja aja \code{vagrant up}. Vagrant luo kansioon Vagrantfile-nimisen tiedoston. Kuviosta \ref{listing:InitialVagrantfile} näkyy tiedoston sisältö ilman kommentteja.
+
+\begin{lstlisting}[
+  label=listing:InitialVagrantfile,
+  language=Ruby,
+  caption=Alustava Vagrantfile,
+  float=h
+]
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+end
+\end{lstlisting}
+
+Kaikki virtuaalikoneen asetukset tulevat config-osion sisälle. Tällä hetkellä koneelle määritellään vain käyttöjärjestelmä: "ubuntu/trusty64". Mahdollisia käyttöjärjestelmiä voi etsiä osoitteesta: \url{https://atlas.hashicorp.com/boxes/search}
 
 Tarjolla on myös tyylit Kuvio ja Kuvion selite. Ainoana erona on se, että selitetekstiin tulostuu tällöin sana ”Kuvio”.
 
