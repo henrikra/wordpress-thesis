@@ -26,7 +26,7 @@ Näin Vagrant toimii \ref{fig:how-vagrant-works}
 \subsection{Vagrantin käyttäminen}
 Ennen Vagrantin käytön aloittamista täytyy VirtualBox ja Vagrant olla asennettuna. Avaamalla terminaalin voit nyt käyttää vagrant-komentoja terminaalissa. Tästä eteenpäin työskennellään koko ajan terminaalissa.
 
-Siirry projektikansioon ja aja \code{vagrant init}. Vagrant luo kansioon Vagrantfile-nimisen tiedoston. Kuviosta \ref{listing:InitialVagrantfile} näkyy tiedoston sisältö ilman kommentteja.
+Siirry projektikansioon ja aja \code{vagrant init}. Vagrant luo kansioon Vagrantfile-nimisen tiedoston. Vagrantfile on käytännössä Ruby-ohjelmointi kieltä, jota Vagrant osaa lukea kun se ajetaan. Vagrantfilessä voi siis käyttää kaikkia Ruby-kielen toimintoja. Kuviosta \ref{listing:InitialVagrantfile} näkyy tiedoston sisältö ilman kommentteja.
 
 \begin{lstlisting}[
   label=listing:InitialVagrantfile,
@@ -39,11 +39,37 @@ Vagrant.configure(2) do |config|
 end
 \end{lstlisting}
 
-Kaikki virtuaalikoneen asetukset tulevat config-osion sisälle. Tällä hetkellä koneelle määritellään vain käyttöjärjestelmä: "ubuntu/trusty64". Mahdollisia käyttöjärjestelmiä voi etsiä osoitteesta: \url{https://atlas.hashicorp.com/boxes/search}
+Kaikki virtuaalikoneen asetukset tulevat config-osion sisälle. Tällä hetkellä koneelle määritellään vain boxi: "ubuntu/trusty64". Mahdollisia boxeja voi etsiä osoitteesta: \url{https://atlas.hashicorp.com/boxes/search}. Boxit ovat käytännössä käyttöjärjestelmä eli pohja virtuaalikoneelle. Tässä tapauksessa boxina on Ubuntu, joka perustuu Debian Linux-jakeluun \cite{link:ubuntu}. Boxi on ravintolavertauskuvassa ravintolan liiketila. Boxi on pakko olla, mutta itsessään sillä ei tee paljon mitään. Boxi täytyy "sisustaa" eli asentaa projektiin liittyvät ohjelmat ja riippuvuudet.
 
-Tarjolla on myös tyylit Kuvio ja Kuvion selite. Ainoana erona on se, että selitetekstiin tulostuu tällöin sana ”Kuvio”.
+Yksinkertaisin keino asentaa ohjelmia virtuaalikoneelle on shell-skriptien avulla. Jos projektiin tarvitsee asentaa vain muutama ohjelma voidaan ne asentaa laittamalla asennus-skripti suoraan Vagrantfileen. 
 
-Kuvan tai taulukon jälkeen tulee tekstiä ennen uutta kuvaa tai taulukkoa tai seuraavaa otsikkoa.
+\begin{lstlisting}[
+  label=listing:vagrant-shell-inline,
+  language=Ruby,
+  caption=Vagrantin yksinkertainen shell-skripti,
+  float=h
+]
+config.vm.provision "shell",
+  inline: "apt-get update; apt-get install -y apache2"
+\end{lstlisting}
+
+Kuviossa \ref{listing:vagrant-shell-inline} Vagrantfilen sisään on lisätty provisiointi shell-skripti, joka on tyyppiä inline. Tällä tarkoitetaan, että koko skripti annetaan suoraan stringinä. Tässä esimerkissä \code{apt-get update} päivittää virtuaalikoneen lokaalitpaketti linkit. \code{apt-get install -y apache2} tarkoittaa että asennetaan Apache-palvelinohjelma, jota monet käyttävät esimerkiksi PHP-projekteissa. Lippu -y pitää lisätä, koska apt varmistaan usein käyttäjältä, että haluaako hän varmasti asentaa kyseisen paketin. Lippu varmistaa sen, että kaikki pakettiin liittyviin kysymyksiin vastataan kyllä.
+
+Skripti voidaan myös jakaa monelle riville Rubyn HEREDOC:n avulla kuvion \ref{listing:vagrant-shell-heredoc} osoittamalla tavalla. HEREDOC mahdollistaa stringin kirjoittamisen monelle riville, mikä helpottaa luettavuutta kun asennetaan paljon ohjelmia.
+
+\begin{lstlisting}[
+  label=listing:vagrant-shell-heredoc,
+  language=Ruby,
+  caption=Vagrantin shell-skripti HEREDOC:lla,
+  float=h
+]
+config.vm.provision "shell", inline: <<-SHELL
+  sudo apt-get update
+  sudo apt-get install -y apache2
+SHELL
+\end{lstlisting}
+
+Käytännössä kuitenkin shell-skripti kannattaa laittaa erilliseen tiedostoon.
 
 \section{Alaluvun otsikko}
 
