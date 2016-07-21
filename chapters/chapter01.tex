@@ -24,7 +24,7 @@ Näin Vagrant toimii \ref{fig:how-vagrant-works}
 \end{figure}
 
 \subsection{Vagrantin käyttäminen}
-Ennen Vagrantin käytön aloittamista täytyy VirtualBox ja Vagrant olla asennettuna. Avaamalla terminaalin voit nyt käyttää vagrant-komentoja terminaalissa. Tästä eteenpäin työskennellään koko ajan terminaalissa.
+Ennen Vagrantin käytön aloittamista täytyy VirtualBox ja Vagrant olla asennettuna. Avaamalla terminaalin voit nyt käyttää vagrant-komentoja terminaalissa. Jos komento \code{vagrant -v} palauttaa Vagrantin nykyisen version niin asennus on mennyt oikein. Tästä eteenpäin työskennellään koko ajan terminaalissa.
 
 Siirry projektikansioon ja aja \code{vagrant init}. Vagrant luo kansioon Vagrantfile-nimisen tiedoston. Vagrantfile on käytännössä Ruby-ohjelmointi kieltä, jota Vagrant osaa lukea kun se ajetaan. Vagrantfilessä voi siis käyttää kaikkia Ruby-kielen toimintoja. Kuviosta \ref{listing:InitialVagrantfile} näkyy tiedoston sisältö ilman kommentteja.
 
@@ -55,7 +55,7 @@ config.vm.provision "shell",
 
 Kuviossa \ref{listing:vagrant-shell-inline} Vagrantfilen sisään on lisätty provisiointi shell-skripti, joka on tyyppiä inline. Tällä tarkoitetaan, että koko skripti annetaan suoraan stringinä. Tässä esimerkissä \code{apt-get update} päivittää virtuaalikoneen lokaalitpaketti linkit. \code{apt-get install -y apache2} tarkoittaa että asennetaan Apache-palvelinohjelma, jota monet käyttävät esimerkiksi PHP-projekteissa. Lippu -y pitää lisätä, koska apt varmistaan usein käyttäjältä, että haluaako hän varmasti asentaa kyseisen paketin. Lippu varmistaa sen, että kaikki pakettiin liittyviin kysymyksiin vastataan kyllä.
 
-Skripti voidaan myös jakaa monelle riville Rubyn HEREDOC:n avulla kuvion \ref{listing:vagrant-shell-heredoc} osoittamalla tavalla. HEREDOC mahdollistaa stringin kirjoittamisen monelle riville, mikä helpottaa luettavuutta kun asennetaan paljon ohjelmia.
+Skripti voidaan myös jakaa monelle riville Rubyn HEREDOC:n avulla kuvion \ref{listing:vagrant-shell-heredoc} osoittamalla tavalla. HEREDOC \cite{link:ruby-heredoc} mahdollistaa stringin kirjoittamisen monelle riville, mikä helpottaa luettavuutta kun asennetaan paljon ohjelmia.
 
 \begin{lstlisting}[
   label=listing:vagrant-shell-heredoc,
@@ -64,14 +64,69 @@ Skripti voidaan myös jakaa monelle riville Rubyn HEREDOC:n avulla kuvion \ref{l
   float=h
 ]
 config.vm.provision "shell", inline: <<-SHELL
-  sudo apt-get update
-  sudo apt-get install -y apache2
+  apt-get update
+  apt-get install -y apache2
 SHELL
 \end{lstlisting}
 
-Käytännössä kuitenkin shell-skripti kannattaa laittaa erilliseen tiedostoon.
+Käytännössä kuitenkin shell-skripti kannattaa laittaa erilliseen tiedostoon kuten kuviossa \ref{listing:vagrant-shell-path}. Jos Vagrantfile ja shell-skripti ovat samassa kansiossa niin riittää kun laittaa vain skriptin nimen.
 
-\section{Alaluvun otsikko}
+Ulkoiseen skriptii täytyy laittaa alkuun kommentti, jossa kerrotaan, että kyseessä on shell-skripti. Ulkoisen skriptiin on helppo määritellä paljon eri ohjelmien asennuksia ja konfigurointeja.
+
+\begin{lstlisting}[
+  label=listing:vagrant-shell-path,
+  language=Ruby,
+  caption=Provisiointi-skripti voi olla myös erillisessä tiedostossa,
+  float=h
+]
+config.vm.provision "shell", path: "install-environment.sh"
+\end{lstlisting}
+
+\begin{lstlisting}[
+  label=listing:vagrant-external-shell-script,
+  language=bash,
+  caption=Ulkoinen shell-skripti,
+  float=h
+]
+#!/bin/bash
+apt-get update
+apt-get install -y apache2
+\end{lstlisting}
+
+Koska projektin koodaaminen tehdään host-koneella niin haluamme saada yhteyden esimerkiksi Apache-palvelimeen suoraan host-koneelta. Siksi seuraavaksi pitää avata virtuaalikoneen portteja host-koneelle. Apache vastaa oletuksena osoitteesta \url{http://localhost:80}, joten haluamme avata portin 80 isäntäkoneelle. Vagrantfileen voidaan määrittää mikä virtuaalikoneen portti halutaan ohjata mihin isäntäkoneen porttiin. Kuviossa \ref{listing:vagrant-port-mapping} virtuaalikoneen portti 80 ohjataan isäntäkoneen porttiin 8080.
+
+\begin{lstlisting}[
+  label=listing:vagrant-port-mapping,
+  language=Ruby,
+  caption=Virtuaalikoneen portti 80 ohjataan isäntäkoneen porttiin 8080,
+  float=h
+]
+config.vm.network "forwarded_port", guest: 80, host: 8080
+\end{lstlisting}
+
+Nyt kun isäntäkoneella mennään selaimella osoitteeseen \url{http://localhost:8080} niin pitäisi tulla näkyviin Apachen oletussivu olettaen, että Apache on asennettu joillakin edellä mainituilla tavoilla virtuaalikoneeseen. Kuvassa \ref{fig:apache-default-page} näkyy Apachen oletussivu kun virtuaalikoneen portit on ohjattu oikein.
+
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{apache-default-page}
+  \caption{Isäntäkone näkee Apachen oletussivun kun oikeat portit ovat auki}
+  \label{fig:apache-default-page}
+\end{figure}
+
+Kansio synkkaaminen tähän.
+
+Vagrantin hyödyt
+\begin{bullet-list}
+  \item Ei tarvitse omalle (hosti)koneelle asentaa mitään.
+  \item Projektin ympäristön asennustiedot ovat version hallinnassa Vagrantfilessä ja shell-skripteissä.
+  \item Ympäristön saa pystyyn vain komentamalla \code{vagrant up}.
+  \item Kaikilla kehittäjillä sama ympäristö.
+\end{bullet-list}
+
+Vagrantin haitat
+\begin{bullet-list}
+  \item Virtuaalikoneet vievät välillä enemmän keskusmuistia kuin lokaalisti ajaessa.
+  \item Yleensä tarvitsee tehdä lisäsäätöä esimerkiksi ku tarkkaillaan tiedoston muutoksia.
+\end{bullet-list}
 
 \subsection{Alaluvun alaotsikko}
 
@@ -112,29 +167,6 @@ Usean rivin pituinen suora lainaus kirjoitetaan kirjainkoolla 10. Tekstissä kä
 \end{quote}
 
 Teksti jatkuu sisennyksen jälkeen vasemmasta reunasta leipätekstityylillä.
-
-Tekstissä oleva luetelma toteutetaan luetelmatyylillä:
-
-\begin{bullet-list}
-  \item Tämä on luetelman ensimmäinen kohta.
-  \item Toinen luetelman kohta sisältää tässä pitkän tekstin, joka ulottuu monelle riville. Vasen reuna tasautuu automaattisesti.
-  \item Tämä on luetelman kolmas kohta.
-  \item Luetelman neljäs kohta on tässä.
-\end{bullet-list}
-
-Luetelman osat kirjoitetaan isolla kirjaimella ja jokaisen jälkeen pannaan piste, kun luetelma koostuu kokonaisista lauseista.
-
-Luetelman osat alkavat pienellä kirjaimella ja viimeisen osan perään tulee piste, kun osat eivät ole lauseita. Insinöörityö koostuu
-
-\begin{bullet-list}
-  \item sanoista
-  \item lauseista
-  \item virkkeistä
-  \item kappaleista
-  \item luvuista.
-\end{bullet-list}
-
-Teksti jatkuu luetelman jälkeen vasemmasta reunasta leipätekstityylillä.
 
 Insinöörityöhön voidaan liittää omalla rivillään esitettyjä, numeroituja kaavoja:
 
