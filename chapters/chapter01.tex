@@ -104,7 +104,7 @@ Koska projektin koodaaminen tehdään host-koneella niin haluamme saada yhteyden
 config.vm.network "forwarded_port", guest: 80, host: 8080
 \end{lstlisting}
 
-Nyt kun isäntäkoneella mennään selaimella osoitteeseen \url{http://localhost:8080} niin pitäisi tulla näkyviin Apachen oletussivu olettaen, että Apache on asennettu joillakin edellä mainituilla tavoilla virtuaalikoneeseen. Kuvassa \ref{fig:apache-default-page} näkyy Apachen oletussivu kun virtuaalikoneen portit on ohjattu oikein.
+Nyt kun isäntäkoneella mennään selaimella osoitteeseen \url{http://localhost:8080} niin pitäisi tulla näkyviin Apachen oletussivu jos Apache on asennettu joillakin edellä mainituilla tavoilla virtuaalikoneeseen. Kuvassa \ref{fig:apache-default-page} näkyy Apachen oletussivu kun virtuaalikoneen portit on ohjattu oikein.
 
 \begin{figure}[h]
   \includegraphics[width=\textwidth]{apache-default-page}
@@ -112,7 +112,31 @@ Nyt kun isäntäkoneella mennään selaimella osoitteeseen \url{http://localhost
   \label{fig:apache-default-page}
 \end{figure}
 
-Kansio synkkaaminen tähän.
+Nyt kun Apache on asennettu oikein voidaan viedä virtuaalikoneelle projektin tiedostostot. Oletetaan, että projektissa on yksinkertaisuuden vuoksi vain index.html-tiedosto. Kuviossa \ref{listing:vagrant-synced-folder} näytetään miten haluttu kansio saadaan synkronoitua virtuaalikoneeseen.
+
+Ensimmäinen parametri kertoo mikä isäntäkoneen kansio halutaan synkronoida. Polun voi antaa relatiivisena tai absoluuttisena. Tässä tapauksessa parametri on relatiivisesti nykyinen kansio. Toinen parametri kertoo minne kansio halutaan synkronoitua virtuaalikoneessa. Isäntäkoneen kansio halutaan synkronoida kansioon /var/www/html, koska sieltä Apache lukee oletuksena tiedostoja. Nyt kun lisätään projektin juureen isäntäkoneella tiedosto index.html, jonka sisältönä on \code{Hello from project file} saadaan kuvan \ref{fig:index-file-response} mukainen vastaus Apachelta.
+
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{index-file-response}
+  \caption{Apache vastaa index.html tiedoston sisällön}
+  \label{fig:index-file-response}
+\end{figure}
+
+Vagrant synkronoi tiedostot valittujen kansioiden välillä molempiin suuntiin. Kun tiedosto lisätään isäntäkoneella niin sama tiedosto ilmestyy virtuaalikoneelle. Samoin jos virtuaalikoneelle lisätään tiedosto synkronoituun kansioon niin tämä tiedosto tulee isäntäkoneelle. Työskennellessä on kuitenkin tarkoitus toimia lisäämällä tiedostoja aina isäntäkoneelle.
+
+
+Jos isäntä- ja virtuaalikoneella on kaksi saman nimistä tiedostoa niin isäntäkoneella oleva tiedosto ylikirjoittaa virtuaalikoneen tiedoston. Esimerkiksi kansiossa /var/www/html on Apachen oletus index.html-tiedosto, mutta projektin index.html ylikirjoittaa sen.
+
+Kuvassa \ref{fig:how-vagrant-works} on visualisoitu kaksisuuntainen kansion synkronointi.
+
+\begin{lstlisting}[
+  label=listing:vagrant-synced-folder,
+  language=Ruby,
+  caption=Isäntäkoneen kansio synkronoidaan virtuaalikoneen kansioon,
+  float=h
+]
+config.vm.synced_folder ".", "/var/www/html"
+\end{lstlisting}
 
 Vagrantin hyödyt
 \begin{bullet-list}
@@ -165,13 +189,3 @@ Sitaatti toteutetaan Lainaus-tyylillä. Sitaatin johtolauseen sisältävässä k
 \begin{quote}
 Usean rivin pituinen suora lainaus kirjoitetaan kirjainkoolla 10. Tekstissä käytetään riviväliä 1, ja teksti sisennetään. Suorassa lainauksessa käytetään mallipohjan lainaustyyliä. Lainaukseen merkitään lähdeviite.
 \end{quote}
-
-Teksti jatkuu sisennyksen jälkeen vasemmasta reunasta leipätekstityylillä.
-
-Insinöörityöhön voidaan liittää omalla rivillään esitettyjä, numeroituja kaavoja:
-
-\begin{equation}
-  x = \frac{-b \pm \sqrt{b^{2} - 4ac}}{2a}
-\end{equation}
-
-Lisää uusi kaava valitsemalla Lisää/Pikaosat/Kaava kaavatoiminnolla. Jos haluat käyttää kaavatoiminnon sijasta vanhaa kaavaeditoria, valitse Lisää/Pikaosat/Kaava (MS Kaava 3.0 -objektina).
