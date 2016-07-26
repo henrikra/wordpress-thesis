@@ -16,7 +16,9 @@ Vagranttia kannattaa ajatella vertauskuvan kautta. Kuvitellaan, että Erik halua
 Kun Subwayn liikejohto huomasi, että uusilla ravintoloiden perustajilla on usein ongelmia ravintolan pystyttämisessä ja sen saamiseksi ohjeiden mukaiseen kuntoon he päättivät helpottaa asiaa. He kehittivät uusien ravintoloiden perustajille paketin, josta täytyy vain painaa nappia eikä ravintoloitsijan tarvitse tehdä muuta. Erik kokeili uutta asennuspakettia ja huomasi, että paketista tuli ulos robotti, joka lähti heti rakentamaan liiketilaa ravintolalle. Robotti rakentaa aina samanlaisen tyhjän liiketilan johdon määrittelemällä tavalla. Kun liiketila on valmis robotti aloittaa jääkaappien, uunien ja muiden laitteiden asentamisen, jotka ovat välttämättömiä Subway-ravintolan pitäjälle. Kun laitteet ovat asennettu liiketila viimeistellään sisustuksella. Robotti tiesi miten asennukset ja sisustaminen pitää tehdä, koska sille on määritelty ohje, jota se lukee. Kun robotti on tehnyt kaiken se antaa liiketilan avaimet Erikille, jonka ei tarvitse muuta kuin laittaa uunit päälle niin hän voi aloittaa myymisen.
 
 \subsection{Vagrantin toiminta}
-Vagrant luo isäntäkoneen sisälle virtuaalikoneen kuten kuvassa \ref{fig:how-vagrant-works}.Virtuaalikone sisältää kaikkille kehittäjille yhteinen käyttöjärjestelmän. Lisäksi Vagrantille annetaan "resepti", jonka mukaan se asentaa kaikki projektin riippuvuudet. Koodin kääntäminen, komentojen ajaminen, mahdollisen tietokannan käyttäminen tms. asiat tehdään virtuaalikoneella. Näin isäntäkone pysyy puhtaana turhista ohjelmista, eikä synny aikaisemmin mainittuja ongelmia. Isäntäkoneessa tapahtuu koodin kirjoittaminen, tiedostojen luonti ja versiohallinan käyttäminen.
+Vagrant luo isäntäkoneen sisälle virtuaalikoneen kuten kuvassa \ref{fig:how-vagrant-works}. Virtuaalikone sisältää kaikkille kehittäjille yhteinen käyttöjärjestelmän. Lisäksi Vagrantille annetaan "resepti", jonka mukaan se asentaa kaikki projektin riippuvuudet virtuaalikoneelle. Koodin kääntäminen, komentojen ajaminen, mahdollisen tietokannan käyttäminen tms. asiat tehdään virtuaalikoneella. Näin isäntäkone pysyy puhtaana turhista ohjelmista, eikä synny aikaisemmin mainittuja ongelmia. Isäntäkoneessa tapahtuu koodin kirjoittaminen, tiedostojen luonti ja versiohallinan käyttäminen.
+
+Kun uusi kehittäjä liittyy tiimiin hänen tarvitsee vain kloona repositorio, mennä projektin kansioon ja komentaa \code{vagrant up}. Muutaman hetken päästä uudella kehittäjällä täydellinen kehitysympäristö, joka on täysin samanlainen kaikkien tiimin kehittäjien kanssa. Uusi kehittäjä käyttää isäntäkonetta vain koodaamisessa. Projektin koodit synkronoidaan virtuaalikoneelle Vagrantin avustuksella. Näin kehittäjä voi käyttää tuttua käyttöjärjestelmää haluamillaan ohjelmilla, jotka liittyvät koodin tuottamiseen. Samalla säilyttäen saman ajo- ja käännösympäristön kuin muilla kehittäjillä.
 
 \begin{figure}[h]
   \includegraphics[width=\textwidth]{how-vagrant-works}
@@ -139,18 +141,26 @@ Kuvassa \ref{fig:how-vagrant-works} on visualisoitu kaksisuuntainen kansion synk
 config.vm.synced_folder ".", "/var/www/html"
 \end{lstlisting}
 
+\subsection{Vagrantin yhteenveto}
+
+Vaikka Vagrant näyttää ensi silmäyksellä olevan täydellinen ratkaisu kaikille projekteille on siinä omat huonot puolensa. Koska Vagrant luo täysiverisiä virtuaalikoneita isäntäkoneen sisään, niin Vagrant käyttää keskusmuistia huomattavasti enemmän kuin normaalisti. Oman kokemukseni mukaan 8 gigatavua keskusmuistia on riittänyt. Tosin laajemmin projekteissa, joissa esimerkiksi tarkkaillaan satojen tiedostojen muutoksia, voi 8 gigatavua keskusmuistia olla liian vähän. Olen kuullut kollegoiltani, joilla on 8 gigatavua keskusmuistia, että välillä virtuaalikone pitää käynnistää uudelleen ettei isäntäkone kävisi niin korkeassa lämpötilassa koko päivää.
+
+Kannattaa myös miettiä milloin projektille on järkevää lisätä virtuaalikone kehitysympäristöksi. Yleisenä nyrkkisääntönä on, että jos koodia tulee kehittämään useampi kehittäjä, niin virtuaalikoneympäristö kannattaa olla. Myös jos projekti sisältää paljon riippuvuuksia, niin on hyvä miettiä läpi virtuaalikoneesta saatavat hyödyt.
+
+Alle on koottu Vagrantin hyödyt ja mahdolliset haitat.
+
 Vagrantin hyödyt
 \begin{bullet-list}
-  \item Ei tarvitse omalle (hosti)koneelle asentaa mitään.
-  \item Projektin ympäristön asennustiedot ovat version hallinnassa Vagrantfilessä ja shell-skripteissä.
-  \item Ympäristön saa pystyyn vain komentamalla \code{vagrant up}.
-  \item Kaikilla kehittäjillä sama ympäristö.
+  \item Ei tarvitse omalle (isäntä)koneelle asentaa mitään projekti spesifejä riippuvuuksia.
+  \item Projektin kehitysympäristön asennustiedot ovat versionhallinnassa Vagrantfilessä ja skripteissä.
+  \item Ympäristön saa helposti pystyyn vain komentamalla \code{vagrant up}.
+  \item Kaikilla kehittäjillä sama kehitysympäristö.
 \end{bullet-list}
 
 Vagrantin haitat
 \begin{bullet-list}
-  \item Virtuaalikoneet vievät välillä enemmän keskusmuistia kuin lokaalisti ajaessa.
-  \item Yleensä tarvitsee tehdä lisäsäätöä esimerkiksi ku tarkkaillaan tiedoston muutoksia.
+  \item Virtuaalikoneella työskentely vie enemmän keskusmuistia kuin suoraan isäntäkoneella työskentely.
+  \item Yleensä tarvitsee tehdä enemmän konfiguraatiota esimerkiksi kun tarkkaillaan tiedostojen muutoksia ja halutaan reagoida niihin.
 \end{bullet-list}
 
 \subsection{Alaluvun alaotsikko}
