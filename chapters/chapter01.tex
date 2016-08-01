@@ -163,9 +163,44 @@ Vagrantin haitat
   \item Yleensä tarvitsee tehdä enemmän konfiguraatiota esimerkiksi kun tarkkaillaan tiedostojen muutoksia ja halutaan reagoida niihin.
 \end{bullet-list}
 
-\subsection{Alaluvun alaotsikko}
+\section{Ansible}
 
-Otsikon jälkeen tulee tekstiä tai uusi alaotsikko.
+Ansible on tarkoitettu palvelinten konfiguraation hallinnoimiseen, palveluiden hallinnointiin ja esimerkiksi web-palveluiden käyttöönottoon ja asentamiseen. Ansiblella voidaan esimerkiksi asentaa kehitys- että tuotantoympäristöön tarvittavat riippuvuudet helposti ja paremmin kuin esimerkiksi shell-skripteillä. Nykyään on myös hyvä tapa tehdä kehitys- että tuotantonympäristöstä mahdollisimman samanlaisia, jotta ympäristöjen erilaisuuksista ei tule ongelmia. Ansiblessa pystyy helposti uudelleen käyttämään siihen määriteltyjä asennustehtäviä parametrisoimalla niitä. Esimerkiksi tietokantayhteys voi hieman poiketa tuotantoympäristössä. Kaikki nämä ja paljon muuta hoituu helposti Ansiblella.
+
+Mietitään jälleen vertauskuvaa Subway-ravintolan perustamisesta. Kun laatikosta tullut robotti on rakentanut ravintolan liiketilan se aloittaa laitteiden asentamisen ja sisustamisen. Jos Erik haluaa myöhemmin esimerkiksi sisustaa ravintolan uudestaan ohjeiden mukaan ollakseen varma, että ravintolan on Subwayn johdon määritelmän mukainen, hänen täytyy kutsua robottia tekemään sisustus uudestaan. Tämä toiminpide täytyy tehdä viimeistään silloin kun Subwayn johto on muuttanut rakennusohjeita.
+
+Vanha robotti tekisi tällöin sekä laitteiden asennuksen, että sisustuksen uudestaan, mutta se saattaa rikkoa paikkoja, koska se esimerkiksi sisustaisi kaiken uudestaan vaikka osa sisustuksesta olisikin jo paikoillaan. Tästä voi luonnollisesti koitua ongelmia ja pahimmassa tapauksessa robotin täytyy tuhota koko ravintola ja aloittaa alusta rakentaminen, laitteiden asennus ja sisustaminen. Toisaalta tämä ei haittaa, koska alusta asti rakennettu ravintola toimii aina. Ainostaan aikaa menee tällöin hukkaan.
+
+Uusi robotti on fiksumpi kuin edellinen. Kun Erik haluaa varmistaa, että ravintola on vanhojen ohjeiden mukainen tai varmistaakseen, että uusimmat muutokset ovat tehty ravintolaan täytyy hänen jälleen kutsua robottia asentamaan ravintola. Ennen kuin uusi robotti alkaa asentaa mitään se tutkii ravintolaa ja kerää siitä tietoa. Kun tiedot on kerätty se aloittaa asentamisen. Esimerkiksi jääkaapin asennuken kohdalla robotti ensin tutkii onko jääkaappi jo asennettu ja jos se on niin se siirtyy seuraavaan asennukseen. Asennuksen päätteeksi robotti ilmoittaa Erikille kuinka monta asiaa asennuslistalta oli jo tehty ja kuinka monta asiaa muutettiin. Esimerkiksi: "10 kohdetta oli jo asennettu ja jääkaapin tilalle asennettiin jääkaappipakastin yhdistelmä".
+
+\subsection{Ansiblen toiminta}
+
+Ansiblen kaltaisia ohjelmia on muutamia, mutta Ansiblen suosio perustuu sen yksinkertaisuuteen ja keveyteen. Käyttääksesi Ansiblea tarvitset vain Pythonin, SSH-yhteyden kohdekoneeseen ja käyttäjän, joka voi suorittaa skriptejä kohdekoneella \cite{link:what-is-ansible}. Jotta Ansiblen käyttäminen olisi erittäin sujuvaa kannattaa kohdekoneelle lisätä SSH-avain, koska tällöin ei tarvita käyttäjätunnus salasana yhdistelmää kun otetaan yhteyttä kohdekoneeseen.
+
+Jotta Ansible pääsee suorittamaan sille annettuja tehtäviä kohdekoneeseen, täytyy sen ensin ottaa SSH-yhteys kohdekoneeseen. Tämä ei vaadi client-koneelta yleisesti mitään lisäasetuksia. Kun yhteys on saatu kohdekoneeseen kerää Ansible tietoja siitä esimerkiksi käyttäjärjestelmän, mitä paketteja on jo asennettu yms. Sen jälkeen Ansible lähtee ajamaan sille määriteltyjä tehtäviä kohdekoneelle.
+
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{how-ansible-works}
+  \caption{Ansiblen toiminta}
+  \label{fig:how-ansible-works}
+\end{figure}
+
+Kuvassa \ref{fig:how-ansible-loops-tasks} näytetään miten Ansible prosessoi sille annettuja tehtäviä. Tehtävä voi olla esimerkiksi palvelinohjelman kuten Apachen asentaminen. Ansible suorittaa sille annetut tehtävät määritellyssä järjestyksessä. Kun SSH-yhteys on luotu ja kohde konetta on tutkittu, voidaan aloittaa tehtävien suorittaminen. Ansible tarkistaa kaikkien tehtävien kohdalla on muutoksia tapahtunut. Muutos tarkoittaa, että onko tehtävää suoritettu ollenkaan tai onko tehtävää muutettu sitten viime kerran. Esimerkiksi jos Apachea ei ole asennettu ollenkaan niin suoritetaan tehtävä. Lisäksi jos viimeksi sama tehtävä on muutettu asentamaan NGINX Apachen sijaan niin suoritetaan tehtävä tällöinkin. Kun tehtävä on suoritettu tarkistetaan onko vielä tehtäviä jäljellä. Jos on niin jatketaan niiden suorittamista. Jos Ansible toteaa, että muutoksia ei ole eli esimerkiksi kyseinen ohjelma on jo asennettu, jatketaan suoraan tarkistamaan onko tehtäviä vielä jäljellä -osioon. Tätä silmukkaa jatketaan kunnes tehtäviä ei ole enään jäljellä.
+
+Kun tehtävä ovat loppuneet antaa Ansible yhteenvedon tehtävistä. Se kertoo esimerkiksi kuinka monta tehtävää ei tarvinnut suorittaa (ei muutoksia) ja kuinka tehtävää suoritettiin (muutoksia oli). Yksi Ansiblen hienoista ominaisuuksista on päivityksen peruminen. Jos äsken suoritettu asennus rikkoi kohdekoneen niin päivityksen voi vielä peruuttaa. Peruuttamisen avulla kehittäjät voivat huoletta viedä uusia ominaisuuksia tuotantoon ilman pelkoa, että kaikki menee hajalle. Aikaisemmin tällaisesta tilanteesta olisi voinut koitua erittäin suurta vaivaa saada kohdekoneen tila samaa kuin se oli aikaisemmin.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth, height=\textheight,keepaspectratio]{how-ansible-loops-tasks}
+  \caption{Ansiblen tehtäväprosessointi}
+  \label{fig:how-ansible-loops-tasks}
+\end{figure}
+
+
+
+kaavio tähän ansiblen toiminnasta. tästsä videosta varmaan hyötyä https://www.youtube.com/watch?v=xMHVvHZ-Zn4
+
+Muista kertoa ansiblen sivusta galaxy.ansible.com
 
 \begin{table}[h]
   \caption{Metropolian opiskelijoiden lukuvuonna 2009–2010 suorittamat virtuaaliopinnot.}
