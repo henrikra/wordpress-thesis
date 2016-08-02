@@ -143,6 +143,26 @@ config.vm.synced_folder ".", "/var/www/html"
 
 \subsection{Vagrantin yhteenveto}
 
+Lopullinen Vagrantfile on kuvion \ref{listing:vagrant-final-apache-setup} mukainen. Vagrantfilessä määriteltiin ensiksi "pohjaboxi", joka määrittelee käyttöjärjestelmän. Seuraavaksi ohjataan virtuaalikoneen portti 80 osoittamaan isäntäkoneen porttiin 8080. Synkronoidaan nykyinen projektikansio Apachen html-juureen ja lopuksi määritellään skripti, joka ajetaan virtuaalikoneella kun kone on käynnistetty.
+
+\begin{lstlisting}[
+  label=listing:vagrant-final-apache-setup,
+  language=Ruby,
+  caption=Lopullinen Vagrantfile Apache koneelle,
+  float=h
+]
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  config.vm.synced_folder ".", "/var/www/html"
+
+  config.vm.provision "shell", path: "install-environment.sh"
+end
+\end{lstlisting}
+
+
 Vaikka Vagrant näyttää ensi silmäyksellä olevan täydellinen ratkaisu kaikille projekteille on siinä omat huonot puolensa. Koska Vagrant luo täysiverisiä virtuaalikoneita isäntäkoneen sisään, niin Vagrant käyttää keskusmuistia huomattavasti enemmän kuin normaalisti. Oman kokemukseni mukaan 8 gigatavua keskusmuistia on riittänyt. Tosin laajemmin projekteissa, joissa esimerkiksi tarkkaillaan satojen tiedostojen muutoksia, voi 8 gigatavua keskusmuistia olla liian vähän. Olen kuullut kollegoiltani, joilla on 8 gigatavua keskusmuistia, että välillä virtuaalikone pitää käynnistää uudelleen ettei isäntäkone kävisi niin korkeassa lämpötilassa koko päivää.
 
 Kannattaa myös miettiä milloin projektille on järkevää lisätä virtuaalikone kehitysympäristöksi. Yleisenä nyrkkisääntönä on, että jos koodia tulee kehittämään useampi kehittäjä, niin virtuaalikoneympäristö kannattaa olla. Myös jos projekti sisältää paljon riippuvuuksia, niin on hyvä miettiä läpi virtuaalikoneesta saatavat hyödyt.
@@ -185,7 +205,9 @@ Jotta Ansible pääsee suorittamaan sille annettuja tehtäviä kohdekoneeseen, t
   \label{fig:how-ansible-works}
 \end{figure}
 
-Kuvassa \ref{fig:how-ansible-loops-tasks} näytetään miten Ansible prosessoi sille annettuja tehtäviä. Tehtävä voi olla esimerkiksi palvelinohjelman kuten Apachen asentaminen. Ansible suorittaa sille annetut tehtävät määritellyssä järjestyksessä. Kun SSH-yhteys on luotu ja kohde konetta on tutkittu, voidaan aloittaa tehtävien suorittaminen. Ansible tarkistaa kaikkien tehtävien kohdalla on muutoksia tapahtunut. Muutos tarkoittaa, että onko tehtävää suoritettu ollenkaan tai onko tehtävää muutettu sitten viime kerran. Esimerkiksi jos Apachea ei ole asennettu ollenkaan niin suoritetaan tehtävä. Lisäksi jos viimeksi sama tehtävä on muutettu asentamaan NGINX Apachen sijaan niin suoritetaan tehtävä tällöinkin. Kun tehtävä on suoritettu tarkistetaan onko vielä tehtäviä jäljellä. Jos on niin jatketaan niiden suorittamista. Jos Ansible toteaa, että muutoksia ei ole eli esimerkiksi kyseinen ohjelma on jo asennettu, jatketaan suoraan tarkistamaan onko tehtäviä vielä jäljellä -osioon. Tätä silmukkaa jatketaan kunnes tehtäviä ei ole enään jäljellä.
+Tehtävä voi olla esimerkiksi palvelinohjelman kuten Apachen asentaminen, tiedoston kopioiminen tai tietokannan käynnistäminen. Ansible suorittaa sille annetut tehtävät määritellyssä järjestyksessä. Tehtävät kuvataan Ansiblen tarjoamilla moduuleilla. Moduuleita on niin paljon, että varmasti jokaiseen tarpeeseen löytyy oma. Ansiblelta löytyy hyvät dokumentaatiot kaikille moduuleille. Tiedoston kopioiminen onnistuu helposti moduulilla copy-moduulilla. Kun SSH-yhteys on luotu ja kohde konetta on tutkittu, voidaan aloittaa tehtävien suorittaminen.
+
+Kuvassa \ref{fig:how-ansible-loops-tasks} näytetään miten Ansible prosessoi sille annettuja tehtäviä. Ansible tarkistaa kaikkien tehtävien kohdalla on muutoksia tapahtunut. Muutos tarkoittaa, että onko tehtävää suoritettu ollenkaan tai onko tehtävää muutettu sitten viime suorituksen jälkeen. Esimerkiksi jos Apachea ei ole asennettu ollenkaan niin suoritetaan tehtävä. Lisäksi jos viimeksi sama tehtävä on muutettu asentamaan NGINX Apachen sijaan niin suoritetaan tehtävä tällöinkin. Kun tehtävä on suoritettu tarkistetaan onko vielä tehtäviä jäljellä. Jos on niin jatketaan niiden suorittamista. Jos Ansible toteaa, että muutoksia ei ole eli esimerkiksi kyseinen ohjelma on jo asennettu, jatketaan suoraan tarkistamaan onko tehtäviä vielä jäljellä -osioon. Tätä silmukkaa jatketaan kunnes tehtäviä ei ole enään jäljellä.
 
 Kun tehtävä ovat loppuneet antaa Ansible yhteenvedon tehtävistä. Se kertoo esimerkiksi kuinka monta tehtävää ei tarvinnut suorittaa (ei muutoksia) ja kuinka tehtävää suoritettiin (muutoksia oli). Yksi Ansiblen hienoista ominaisuuksista on päivityksen peruminen. Jos äsken suoritettu asennus rikkoi kohdekoneen niin päivityksen voi vielä peruuttaa. Peruuttamisen avulla kehittäjät voivat huoletta viedä uusia ominaisuuksia tuotantoon ilman pelkoa, että kaikki menee hajalle. Aikaisemmin tällaisesta tilanteesta olisi voinut koitua erittäin suurta vaivaa saada kohdekoneen tila samaa kuin se oli aikaisemmin.
 
@@ -195,5 +217,49 @@ Kun tehtävä ovat loppuneet antaa Ansible yhteenvedon tehtävistä. Se kertoo e
   \caption{Ansiblen tehtäväprosessointi}
   \label{fig:how-ansible-loops-tasks}
 \end{figure}
+
+\subsection{Ansiblen käyttäminen}
+
+Ansiblen käytön aloittamiseksi se pitää asentaa osoiteen \url{http://docs.ansible.com/ansible/intro_installation.html} mukaan. Asennuksen jälkeen avaa komentorivi ja komenna \code{ansible --version} ja jos Ansible kertoo nykyisen versionsa on Ansible asennettu oikein.
+
+Seuraavaksi luodaan jälleen Vagrant virtuaalikone, mutta nyt siihen asennettavat ohjelmat ja riippuvuudet ei asenneta shell-skriptin vaan Ansible playbookin avulla. Jatketaan kuviossa \ref{listing:vagrant-final-apache-setup} olevaa Vagrantfileä.
+
+Ensiksi korvataan shell-skriptin määrittelevä rivi, niin että määrittelemme riippuvuuksien asentajaksi Ansible. Kuviosta \ref{listing:vagrantfile-ansible} nähdään Ansible määrittely. Määrittelyssä kerrotaan Ansiblelle, että playbook löytyy tiedostosta "playbook.yml", joka on samassa kansiossa, jossa Vagrantfile on. Playbook sisältää kaikki tiedot virtuaalikoneen riippuvuuksien asentamiseen. Playbook-tiedosto on yksinkertainen YAML-tiedosto.
+
+\begin{lstlisting}[
+  label=listing:vagrantfile-ansible,
+  language=Ruby,
+  caption=Määritellään virtuaalikoneen riippuvuuksien asentajaksi Ansible,
+  float=h
+]
+config.vm.provision "ansible" do |ansible|
+  ansible.playbook = "playbook.yml"
+end
+\end{lstlisting}
+
+Sitten luodaan playbook.yml tiedosto, joka on kuvattu kuviossa \ref{listing:apache-playbook}. Kaikki YAML-tiedostot pitäisi aloittaa sijoittamalla kolme väliviivaa dokumentin alkuun. Tämä on YAML:n tapa kertoa, dokumentin alkukohdasta.
+
+Ensin määritellään hostit eli mille kohdekoneille kyseinen playbook suoritetaan. Tässä tapauksessa voidaan määritellä kaikki kohdekoneet, koska Ansiblea käskytetään Vagrantin kautta, jolloin vain virtuaalikoneelle asennetaan riippuvuuksia \cite{link:comprehensive-ansible-tutorial}. Yleisesti kohteiksi ei laiteta kaikkia mahdollisia kohdekoneita. Kohteina normaalisti olisi esimerkiksi, dev (kehitysympäristö), staging (testausympäristö) tai production (tuotantoympäristö).
+
+Määrittely true avaimelle "become" tarkoittaa, että kaikki playbookissa olevat tehtävät ajetaan root-oikeuksilla. Eli sama asia kuin lisäisi esimerkiksi asennuskomentojen eteen "sudo". Tällä tavalla ohjelmia voidaan ylipäätään asentaa kohdekoneille \cite{link:ansible-configuration-file}.
+
+Jotta voidaan määritellä käyttäjätunnus, jolla tehtäviä ajetaan kohdekoneella täytyy määritelmälle "remote\_user" antaa arvo. Virtuaalikoneen tapauksessa arvoksi laitetaan vagrant, koska se on Vagrant virtuaalikoneiden oletuskäyttäjä.
+
+\begin{lstlisting}[
+  label=listing:apache-playbook,
+  language=Ruby,
+  caption=Pohja Ansible playbookille,
+  float=h
+]
+---
+- hosts: all
+  become: true
+  remote_user: vagrant
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+\end{lstlisting}
+
 
 Muista kertoa ansiblen sivusta galaxy.ansible.com
