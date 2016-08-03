@@ -12,7 +12,7 @@ Uusi robotti on fiksumpi kuin edellinen. Kun Erik haluaa varmistaa, että ravint
 
 Ansiblen kaltaisia ohjelmia on muutamia, mutta Ansiblen suosio perustuu sen yksinkertaisuuteen ja keveyteen. Käyttääksesi Ansiblea tarvitset vain Pythonin, SSH-yhteyden kohdekoneeseen ja käyttäjän, joka voi suorittaa skriptejä kohdekoneella \cite{link:what-is-ansible}. Jotta Ansiblen käyttäminen olisi erittäin sujuvaa kannattaa kohdekoneelle lisätä SSH-avain, koska tällöin ei tarvita käyttäjätunnus salasana yhdistelmää kun otetaan yhteyttä kohdekoneeseen.
 
-Jotta Ansible pääsee suorittamaan sille annettuja tehtäviä kohdekoneeseen, täytyy sen ensin ottaa SSH-yhteys kohdekoneeseen. Tämä ei vaadi client-koneelta yleisesti mitään lisäasetuksia. Kun yhteys on saatu kohdekoneeseen kerää Ansible tietoja siitä esimerkiksi käyttäjärjestelmän, mitä paketteja on jo asennettu yms. Sen jälkeen Ansible lähtee ajamaan sille määriteltyjä tehtäviä kohdekoneelle.
+Jotta Ansible pääsee suorittamaan sille annettuja tehtäviä kohdekoneeseen, täytyy sen ensin ottaa SSH-yhteys kohdekoneeseen. Tämä ei vaadi client-koneelta yleisesti mitään lisäasetuksia. Kun yhteys on saatu kohdekoneeseen kerää Ansible tietoja siitä esimerkiksi käyttäjärjestelmän, mitä paketteja on jo asennettu yms. Sen jälkeen Ansible lähtee ajamaan sille määriteltyjä tehtäviä kohdekoneelle. Tehtävät määritellään playbookkeina, jotka sijaitsevat client-koneella \ref{fig:how-ansible-works}
 
 \begin{figure}[h]
   \includegraphics[width=\textwidth]{how-ansible-works}
@@ -20,11 +20,13 @@ Jotta Ansible pääsee suorittamaan sille annettuja tehtäviä kohdekoneeseen, t
   \label{fig:how-ansible-works}
 \end{figure}
 
-Tehtävä voi olla esimerkiksi palvelinohjelman kuten Apachen asentaminen, tiedoston kopioiminen tai tietokannan käynnistäminen. Ansible suorittaa sille annetut tehtävät määritellyssä järjestyksessä. Tehtävät kuvataan Ansiblen tarjoamilla moduuleilla. Moduuleita on niin paljon, että varmasti jokaiseen tarpeeseen löytyy oma. Ansiblelta löytyy hyvät dokumentaatiot kaikille moduuleille. Tiedoston kopioiminen onnistuu helposti moduulilla copy-moduulilla. Kun SSH-yhteys on luotu ja kohde konetta on tutkittu, voidaan aloittaa tehtävien suorittaminen.
+Tehtävä voi olla esimerkiksi palvelinohjelman kuten Apachen asentaminen, tiedoston kopioiminen tai tietokannan käynnistäminen. Ansible suorittaa sille annetut tehtävät määritellyssä järjestyksessä. Tehtävät kuvataan Ansiblen tarjoamilla moduuleilla. Moduuleita on niin paljon, että varmasti jokaiseen tarpeeseen löytyy oma. Ansiblelta löytyy hyvät dokumentaatiot kaikille moduuleille. Esimerkiksi tiedoston kopioiminen onnistuu helposti copy-moduulilla. Kun SSH-yhteys on luotu ja kohdekonetta on tutkittu, voidaan aloittaa tehtävien suorittaminen.
 
-Kuvassa \ref{fig:how-ansible-loops-tasks} näytetään miten Ansible prosessoi sille annettuja tehtäviä. Ansible tarkistaa kaikkien tehtävien kohdalla on muutoksia tapahtunut. Muutos tarkoittaa, että onko tehtävää suoritettu ollenkaan tai onko tehtävää muutettu sitten viime suorituksen jälkeen. Esimerkiksi jos Apachea ei ole asennettu ollenkaan niin suoritetaan tehtävä. Lisäksi jos viimeksi sama tehtävä on muutettu asentamaan NGINX Apachen sijaan niin suoritetaan tehtävä tällöinkin. Kun tehtävä on suoritettu tarkistetaan onko vielä tehtäviä jäljellä. Jos on niin jatketaan niiden suorittamista. Jos Ansible toteaa, että muutoksia ei ole eli esimerkiksi kyseinen ohjelma on jo asennettu, jatketaan suoraan tarkistamaan onko tehtäviä vielä jäljellä -osioon. Tätä silmukkaa jatketaan kunnes tehtäviä ei ole enään jäljellä.
+Kuvassa \ref{fig:how-ansible-loops-tasks} näytetään miten Ansible prosessoi sille annettuja tehtäviä. Ansible tarkistaa kaikkien tehtävien kohdalla onko muutoksia tapahtunut. Muutos tarkoittaa, että onko tehtävää suoritettu ollenkaan tai onko tehtävää muutettu sitten viime suorituksen jälkeen. Esimerkiksi jos Apachea ei ole asennettu ollenkaan niin suoritetaan tehtävä. Lisäksi jos viimeksi sama tehtävä on muutettu asentamaan NGINX Apachen sijaan niin suoritetaan tehtävä tällöinkin. Kun tehtävä on suoritettu tarkistetaan onko vielä tehtäviä jäljellä. Jos on niin jatketaan niiden suorittamista. Jos Ansible toteaa, että muutoksia ei ole eli esimerkiksi kyseinen ohjelma on jo asennettu, jatketaan suoraan tarkistamaan onko tehtäviä vielä jäljellä -osioon. Tätä silmukkaa jatketaan kunnes tehtäviä ei ole enään jäljellä.
 
-Kun tehtävä ovat loppuneet antaa Ansible yhteenvedon tehtävistä. Se kertoo esimerkiksi kuinka monta tehtävää ei tarvinnut suorittaa (ei muutoksia) ja kuinka tehtävää suoritettiin (muutoksia oli). Yksi Ansiblen hienoista ominaisuuksista on päivityksen peruminen. Jos äsken suoritettu asennus rikkoi kohdekoneen niin päivityksen voi vielä peruuttaa. Peruuttamisen avulla kehittäjät voivat huoletta viedä uusia ominaisuuksia tuotantoon ilman pelkoa, että kaikki menee hajalle. Aikaisemmin tällaisesta tilanteesta olisi voinut koitua erittäin suurta vaivaa saada kohdekoneen tila samaa kuin se oli aikaisemmin.
+Kun tehtävä ovat loppuneet antaa Ansible yhteenvedon tehtävistä. Se kertoo esimerkiksi kuinka monta tehtävää ei tarvinnut suorittaa (ei muutoksia) ja kuinka tehtävää suoritettiin (muutoksia oli).
+
+Yksi Ansiblen hienoista ominaisuuksista on päivityksen peruminen. Jos äsken suoritettu asennus rikkoi kohdekoneen niin päivityksen voi vielä peruuttaa. Peruuttamisen avulla kehittäjät voivat huoletta viedä uusia ominaisuuksia tuotantoon ilman pelkoa, että kaikki menee hajalle. Aikaisemmin tällaisesta tilanteesta olisi voinut koitua erittäin suurta vaivaa saada kohdekoneen tila samaa kuin se oli aikaisemmin.
 
 \begin{figure}[h]
   \centering
@@ -61,7 +63,7 @@ Määrittely true avaimelle "become" tarkoittaa, että kaikki playbookissa oleva
 Jotta voidaan määritellä käyttäjätunnus, jolla tehtäviä ajetaan kohdekoneella täytyy määritelmälle "remote\_user" antaa arvo. Virtuaalikoneen tapauksessa arvoksi laitetaan vagrant, koska se on Vagrant virtuaalikoneiden oletuskäyttäjä.
 
 \begin{lstlisting}[
-  label=listing:apache-playbook,
+  label=listing:base-playbook,
   language=Ruby,
   caption=Pohja Ansible playbookille,
   float=h
@@ -75,6 +77,30 @@ Jotta voidaan määritellä käyttäjätunnus, jolla tehtäviä ajetaan kohdekon
       apt:
         update_cache: yes
 \end{lstlisting}
+
+Kaikki tehtävät määritellään playbookkiin tasks avaimen kohdalle. Kuviossa \ref{listing:base-playbook} määritellään vain yksi tehtävä. Tehtävällä pitää olla jokin nimi. Nimi kannattaa kirjoittaa mahdollisimman ihmisystävälliseksi, koska nimi näkyy asennusprosessin aikana, mikä helpottaa tilanteen seuraamista. Kuviossa tehtävä on nimetty kyseisellä tavalla, koska tehtävässä päivitetään pakettityökalun välimuisti paketeista. Normaalisti välimuistin päivitys tehtäisiin komennolla \code{sudo apt-get update}. Sudoa ei tarvitse kirjoittaa mihkään, koska kaikki tehtävät suoritetaan sudo voimilla, koska aikasemmin kohtaa become määriteltiin true, joka nostaa kaikkii komentoihin sudo oikeudet.
+
+Sitten tehtävälle pitää kertoa mitä Ansible moduulia se käyttää tehtävän suorittamiseen. Jos ei tiedä mitä moduulia kannattaa käyttää niin suosittelen Googlaamaan normaalin komennon nimen ja perään Ansible. Esimerkiksi kun etsii \code{apt-get update ansible} niin ensimmäisenä löytyy Ansiblen dokumentaatio apt-moduulista. Moduulin dokumentaatiosta nähdään, että pakettien välimuistin voidaan päivittää kuvion \ref{listing:base-playbook} osoittamalla tavalla.
+
+\subsection{Node.js ympäristön luominen Ansiblella}
+
+Seuraavaksi laajennetaan kuviossa \ref{listing:base-playbook} olevaa pohja playbookkia niin, että virtuaalikoneelle saadaan asennettua Node.js. Tavoitteena on myös asentaa pieni Node-palvelin, jota voidaan kutsua isäntäkoneen internetselaimesta.
+
+Ensin katsotaan miten Node.js asennettaisiin normaalisti Ubuntulle (virtuaalikoneen käyttöjärjestelmäksi on valittu aikaisemmin Ubuntu). Kuviossa \ref{listing:install-node-with-shell-script} on esitetty asennus shell-skriptinä. Esimerkki shell-skriptistä näytetään, jotta saadaan varmasti kuva siitä mitä ollaan tekemässä. Shell-skriptissä ensin ladataan nodesourcen sivuilta neljännen version skripti, joka suoritetaan samalla rivillä. Tämä skripti päivittää paikallisen nodejs paketin repositorion, joten kun se asennetaan saadaan uusin versio neljännestä Nodesta. Seuraavalla rivillä asennetaan Node.js pakettityökalulla. Viimeisellä rivillä asennetaan vielä apukirjasto, joka on yleisesti hyvä olla kun Noden kanssa ollaan tekemisissä.
+
+\begin{lstlisting}[
+  label=listing:install-node-with-shell-script,
+  language=bash,
+  caption=Node.js:n asennus shell-skriptillä,
+  float=h
+]
+#!/bin/bash
+curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+sudo apt-get install -y nodejs
+sudo apt-get install -y build-essential
+\end{lstlisting}
+
+Seuraavaksi samat asiat, jotka shell-skripti tekee on tarkoitus kuvata Ansible tehtävälistana. Voidaan olettaa, että apt-moduulia tarvitaan taas, koska sama moduuli teki pakettien välimuistin päivityksenkin. Shell-skriptissä oleva curl ohjelma lataa internetistä tiedostoja ja sille vastaava moduuli on get\_url. Lopuksi ladatun skriptin suorittamiseen käytetään moduulia shell.
 
 
 Muista kertoa ansiblen sivusta galaxy.ansible.com
