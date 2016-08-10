@@ -86,7 +86,7 @@ Sitten tehtävälle pitää kertoa mitä Ansible moduulia se käyttää tehtäv�
 
 Seuraavaksi laajennetaan kuviossa \ref{listing:base-playbook} olevaa pohja playbookkia niin, että virtuaalikoneelle saadaan asennettua Node.js. Tavoitteena on myös asentaa pieni Node-palvelin, jota voidaan kutsua isäntäkoneen internetselaimesta.
 
-Ensin katsotaan miten Node.js asennettaisiin normaalisti Ubuntulle (virtuaalikoneen käyttöjärjestelmäksi on valittu aikaisemmin Ubuntu). Kuviossa \ref{listing:install-node-with-shell-script} on esitetty asennus shell-skriptinä. Esimerkki shell-skriptistä näytetään, jotta saadaan varmasti kuva siitä mitä ollaan tekemässä. Shell-skriptissä ensin ladataan nodesourcen sivuilta neljännen version skripti, joka suoritetaan samalla rivillä. Tämä skripti päivittää paikallisen nodejs paketin repositorion, joten kun se asennetaan saadaan uusin versio neljännestä Nodesta. Seuraavalla rivillä asennetaan Node.js pakettityökalulla. Viimeisellä rivillä asennetaan vielä apukirjasto, joka on yleisesti hyvä olla kun Noden kanssa ollaan tekemisissä.
+Ensin katsotaan miten Node.js asennettaisiin normaalisti Ubuntulle (virtuaalikoneen käyttöjärjestelmäksi on valittu aikaisemmin Ubuntu). Kuviossa \ref{listing:install-node-with-shell-script} on esitetty asennus shell-skriptinä. Esimerkki shell-skriptistä näytetään, jotta saadaan varmasti kuva siitä mitä ollaan tekemässä. Shell-skriptissä ensin ladataan nodesourcen-sivuilta neljännen version skripti, joka suoritetaan samalla rivillä. Tämä skripti päivittää paikallisen nodejs paketin repositorion, joten kun se asennetaan saadaan uusin versio neljännestä Nodesta. Seuraavalla rivillä asennetaan Node.js pakettityökalulla. Viimeisellä rivillä asennetaan vielä apukirjasto, joka on yleisesti hyvä olla kun Noden kanssa ollaan tekemisissä.
 
 \begin{lstlisting}[
   label=listing:install-node-with-shell-script,
@@ -101,6 +101,122 @@ sudo apt-get install -y build-essential
 \end{lstlisting}
 
 Seuraavaksi samat asiat, jotka shell-skripti tekee on tarkoitus kuvata Ansible tehtävälistana. Voidaan olettaa, että apt-moduulia tarvitaan taas, koska sama moduuli teki pakettien välimuistin päivityksenkin. Shell-skriptissä oleva curl ohjelma lataa internetistä tiedostoja ja sille vastaava moduuli on get\_url. Lopuksi ladatun skriptin suorittamiseen käytetään moduulia shell.
+
+Kuviossa \ref{listing:install-node-with-ansible} tasks-ominaisuuden alle on lisätty Node.js:n asennukseen tarvittavat moduulit. Kuviosta huomataan myös, että Noden asennus tehdään nyt melko monessa osassa. Ensimmäinen tehtävä lataa aiemmin mainitun Noden päivitysskriptin. Skripti laitetaan polkuun \code{/tmp}, koska kyseiseen kansioon laitetaan väliaikaisia tiedostoja. Seuraavaksi skripti suoritetaan ensin siirtymällä parametrilla \code{chdir} väliaikaisten tiedostojen kansioon ja sitten ajamalla skripti.
+
+Seuraava tehtävä käyttää aikaisemmin nähtyä apt-moduulia. Usein asennettavia paketteja apt:n kautta on monta, joten olisi turhan runsassanaista kirjoittaa jokaiselle asennukselle oma tehtävä. Tästä syystä Ansible-skripteissä voi käyttää with\_items-avainta. Kyseinen avain käytännössä taulukko ohjelmista, jotka halutaan asentaa. Sitten apt-moduulin name-avaimen kohdalle ei laitetakkaan yksittäisen paketin nimeä vaan \code{"\{\{ item \}\}"}. Näin asennetaan tarvittavat paketit: nodejs ja build-essential.
+
+Lopuksi Noden päivitysskripti poistetaan file-moduulilla. State avaimen parametriksi annetaan tällöin absent.
+
+Nyt playbook on valmis Node ympäristön luomiseen. Ajetaan siis komento \code{vagrant up}. Nyt Vagrant tekee samoja asioita mitä aikaisemmin esim asentaa Ubuntun, ohjaa portteja virtuaalikoneesta isäntäkoneeseen tms. Kun Vagrant on suorittanut perustehtävät se alkaa asentamaan Ansiblen avulla Nodea. Kuvassa \ref{fig:ansible-running} nähdään kun Ansible kertoo tehtävä tehtävältä mitä se on tekemässä.
+
+Kuvasta huomataan, että shell provisionerin sijasta käytetään ansible provisiointi, niin kuin Vagrantfilessä määriteltiin. Ensiksi Ansible ilmoittaa mille kohdekoneille se ajaa tehtäviä. Tässä tapauksessa se on kaikki eli pelkästään virtuaalikone, koska muita ei ole saatavilla. Tästä eteen päin Ansible näyttää ihmisluettavan tekstin, jossa lukee sen hetkisen tehtävän nimi. Tehtävän ala puolella miten tehtävän suorituksessa tehtiin. Tila ok tarkoittaa, että tehtävää ei tarvinnut suorittaa. Kuvassa esimerkiksi pakettien päivitystehtävä ei suoritettu, koska paketit oli päivitetty jo aikaisemmin. Tällöin Ansible vain ohittaa tehtävän ja siirtyy eteen päin.
+
+Tehtävä, jossa ladataan Noden päivitysskripti on tilana changed, joka tarkoittaa, että pakettia ei ole ennen asennettu tai se on esimerkiksi asennettu ennen, mutta nyt se on jostain syystä poistettu. Ensimmäisellä kerralla tietysti ajettaessa syy on juuri asennettu virtuaalikone, johon ei ole vielä asennettu mitään.
+
+Jos jokin tehtävistä epäonnistuu antaa Ansible tilaksi unreachable tai failed. Laitetaan tahallaan yksi tehtävä epäonnistumaan. Kuvassa \ref{fig:ansible-fails} näkyy virheellisen tehtävän tuloste. Virheviestissä näkyy, että Ansible yrittää ajaa tiedostoa, jota ei ole olemassa (node-setupdfg). Ansible ei myöskään suorita muita tehtäviä jos jokin niistä epäonnistuu.
+
+Playbookin suoritettuaan Ansible antaa yhteenvedon, siitä kuinka tehtävät suoritettiin. Kuvassa \ref{fig:ansible-summary} näkyy Noden asennuksen yhteenveto. Yhteenvedossa lasketaan vain tehtävien eri tilat yhteen. Koska kaikki tehtävät menivät läpi voidaan olettaa että virtuaalikoneella on nyt uusin versio neljännestä Nodesta.
+
+Siirrytään jälleen komennolla \code{vagrant ssh} virtuaalikoneen sisään. Tarkastetaan komennolla \code{node -v}, että Node on asennettu ja versio numero alkaa numerolla neljä.
+
+\subsection{Node palvelimen luominen}
+
+Luodaan projektin juureen tiedosto app.js, johon laitetaan pienen http-palvelimen koodi. Palvelimeen on tarkoitus ottaa yhteys internetselaimen kautta isäntäkoneelta.
+
+Ennen koodin lisäämistä Vagrantfilestä pitää muuttaa projektin koodien synkronointi sijainti. Sijainniksi valitaan \code{/vagrant}. Lisäksi muutetaan virtuaalikoneen portti 8080 osoittamaan porttiin 3000 isäntäkoneessa. Kuviossa \ref{listing:final-node-vagrantfile} on lopullinen Node ympäristön Vagrantfile. Vagrantfilessä uudet muutokset saa voimaan esimerkiksi tuhoamalla virtuaalikoneen komennolla \code{vagrant destroy}, mutta useasti sitä ei haluta koko ajan tehdä, koska se vie aikaa. Ajamalla \code{vagrant reload} Vagrant pitää vanhan virtuaalikoneen tallella ja ajaa siihen muuttuneet kohdat Vagrantfilessä.
+
+Nyt kun mennään takaisin virtuaalikoneen sisään ja siirrytään kansioon \code{/vagrant} niin siellä on kaikki projektin tiedostot. Lisätään tiedosto app.js, johon laitetaan Node-palvelimen koodit. Kuviossa \ref{listing:node-server} on app.js tiedoston sisältö. Koodissa ensin tuodaan http-moduuli, jonka avulla palvelin luodaan. Määritellään palvelimelle käsittelijä, joka vastaa viestillä, jossa näkyy kutsun osoite. Palvelin käynnistetään porttiin 8080. Kun palvelin on käynnistetty komentoriville tulee ilmoitus "Server listening on: http://localhost:8080", mutta isäntäkoneesta palvelimen vastaukseen pääsee käsiksi osoitteessa http://localhost:3000. Syy tähän on Vagrantfilessä, jossa portit määriteltiin menemään näin. Kuvassa \ref{fig:node-server-response} näkyy Node-palvelimen vastaus isäntäkoneessa.
+
+\begin{lstlisting}[
+  label=listing:install-node-with-ansible,
+  language=Ruby,
+  caption=Node.js:n asennus Ansible playbookilla,
+  float=h
+]
+- name: Download Node.js
+  get_url:
+    url: https://deb.nodesource.com/setup_4.x
+    dest: /tmp/node-setup
+- name: Update NodeJS repository
+  shell: bash node-setup
+  args:
+    chdir: /tmp
+- name: Install Node.js
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - nodejs
+    - build-essential
+- name: Clean up
+  file:
+    path: /tmp/node-setup
+    state: absent
+\end{lstlisting}
+
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{ansible-running}
+  \caption{Ansible tuloste kun se ajaa tehtäviä}
+  \label{fig:ansible-running}
+\end{figure}
+
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{ansible-fails}
+  \caption{Ansiblen tehtävä epäonnistuu}
+  \label{fig:ansible-fails}
+\end{figure}
+
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{ansible-summary}
+  \caption{Ansiblen yhteenveto tehtävien suorituksesta}
+  \label{fig:ansible-summary}
+\end{figure}
+
+\begin{lstlisting}[
+  label=listing:final-node-vagrantfile,
+  language=Ruby,
+  caption=Lopullinen Vagrantfile Node virtuaalikoneelle,
+  float=h
+]
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+
+  config.vm.network "forwarded_port", guest: 8080, host: 3000
+
+  config.vm.synced_folder ".", "/vagrant"
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "playbook.yml"
+  end
+end
+\end{lstlisting}
+
+\begin{lstlisting}[
+  label=listing:node-server,
+  language=JavaScript,
+  caption=Yksinkertainen Node-palvelin,
+  float=h
+]
+const http = require('http');
+
+const PORT = 8080;
+
+function handleRequest(request, response) {
+  response.end(`It Works!! Path Hit: ${request.url}`);
+}
+
+const server = http.createServer(handleRequest);
+
+server.listen(PORT, () => {
+  console.log(`Server listening on: http://localhost:${PORT}`);
+});
+\end{lstlisting}
+
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{node-server-response}
+  \caption{Node-palvelimen vastaus isäntäkoneessa}
+  \label{fig:node-server-response}
+\end{figure}
 
 
 Muista kertoa ansiblen sivusta galaxy.ansible.com
