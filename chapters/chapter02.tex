@@ -37,11 +37,11 @@ Yksi Ansiblen hienoista ominaisuuksista on päivityksen peruminen. Jos äsken su
 
 \section{Ansiblen käyttäminen}
 
-Ansiblen käytön aloittamiseksi se pitää asentaa osoiteen \url{http://docs.ansible.com/ansible/intro_installation.html} mukaan. Asennuksen jälkeen avaa komentorivi ja komenna \code{ansible --version} ja jos Ansible kertoo nykyisen versionsa on Ansible asennettu oikein.
+Ansiblen käytön aloittamiseksi se pitää asentaa osoiteen \url{http://docs.ansible.com/ansible/intro_installation.html} mukaan. Asennuksen jälkeen avaa komentorivi ja komenna \code{ansible -{}-version} ja jos Ansible kertoo nykyisen versionsa on Ansible asennettu oikein.
 
 Seuraavaksi luodaan jälleen Vagrant virtuaalikone, mutta nyt siihen asennettavat ohjelmat ja riippuvuudet ei asenneta shell-skriptin vaan Ansible playbookin avulla. Jatketaan kuviossa \ref{listing:vagrant-final-apache-setup} olevaa Vagrantfileä.
 
-Ensiksi korvataan shell-skriptin määrittelevä rivi, niin että määrittelemme riippuvuuksien asentajaksi Ansible. Kuviosta \ref{listing:vagrantfile-ansible} nähdään Ansible määrittely. Määrittelyssä kerrotaan Ansiblelle, että playbook löytyy tiedostosta "playbook.yml", joka on samassa kansiossa, jossa Vagrantfile on. Playbook sisältää kaikki tiedot virtuaalikoneen riippuvuuksien asentamiseen. Playbook-tiedosto on yksinkertainen YAML-tiedosto.
+Ensiksi korvataan shell-skriptin määrittelevä rivi, niin että määrittelemme riippuvuuksien asentajaksi Ansiblen. Kuviosta \ref{listing:vagrantfile-ansible} nähdään Ansiblen määrittely. Määrittelyssä kerrotaan Ansiblelle, että playbook löytyy tiedostosta "playbook.yml", joka on samassa kansiossa, jossa Vagrantfile on. Playbook sisältää kaikki tiedot virtuaalikoneen riippuvuuksien asentamiseen. Playbook-tiedosto on yksinkertainen YAML-tiedosto.
 
 \begin{lstlisting}[
   label=listing:vagrantfile-ansible,
@@ -54,7 +54,7 @@ config.vm.provision "ansible" do |ansible|
 end
 \end{lstlisting}
 
-Sitten luodaan playbook.yml tiedosto, joka on kuvattu kuviossa \ref{listing:apache-playbook}. Kaikki YAML-tiedostot pitäisi aloittaa sijoittamalla kolme väliviivaa dokumentin alkuun. Tämä on YAML:n tapa kertoa, dokumentin alkukohdasta.
+Sitten luodaan playbook.yml tiedosto, joka on kuvattu kuviossa \ref{listing:base-playbook}. Kaikki YAML-tiedostot pitäisi aloittaa sijoittamalla kolme väliviivaa dokumentin alkuun. Tämä on YAML:n tapa kertoa, dokumentin alkukohdasta.
 
 Ensin määritellään hostit eli mille kohdekoneille kyseinen playbook suoritetaan. Tässä tapauksessa voidaan määritellä kaikki kohdekoneet, koska Ansiblea käskytetään Vagrantin kautta, jolloin vain virtuaalikoneelle asennetaan riippuvuuksia \cite{link:comprehensive-ansible-tutorial}. Yleisesti kohteiksi ei laiteta kaikkia mahdollisia kohdekoneita. Kohteina normaalisti olisi esimerkiksi, dev (kehitysympäristö), staging (testausympäristö) tai production (tuotantoympäristö).
 
@@ -100,17 +100,17 @@ sudo apt-get install -y nodejs
 sudo apt-get install -y build-essential
 \end{lstlisting}
 
-Seuraavaksi samat asiat, jotka shell-skripti tekee on tarkoitus kuvata Ansible tehtävälistana. Voidaan olettaa, että apt-moduulia tarvitaan taas, koska sama moduuli teki pakettien välimuistin päivityksenkin. Shell-skriptissä oleva curl ohjelma lataa internetistä tiedostoja ja sille vastaava moduuli on get\_url. Lopuksi ladatun skriptin suorittamiseen käytetään moduulia shell.
+Seuraavaksi samat asiat, jotka shell-skripti tekee on tarkoitus kuvata Ansible tehtävälistana. Voidaan olettaa, että apt-moduulia tarvitaan taas, koska sama moduuli teki pakettien välimuistin päivityksenkin. Shell-skriptissä oleva curl ohjelma lataa internetistä tiedostoja ja sitä vastaava moduuli on get\_url. Lopuksi ladatun skriptin suorittamiseen käytetään moduulia shell.
 
 Kuviossa \ref{listing:install-node-with-ansible} tasks-ominaisuuden alle on lisätty Node.js:n asennukseen tarvittavat moduulit. Kuviosta huomataan myös, että Noden asennus tehdään nyt melko monessa osassa. Ensimmäinen tehtävä lataa aiemmin mainitun Noden päivitysskriptin. Skripti laitetaan polkuun \code{/tmp}, koska kyseiseen kansioon laitetaan väliaikaisia tiedostoja. Seuraavaksi skripti suoritetaan ensin siirtymällä parametrilla \code{chdir} väliaikaisten tiedostojen kansioon ja sitten ajamalla skripti.
 
-Seuraava tehtävä käyttää aikaisemmin nähtyä apt-moduulia. Usein asennettavia paketteja apt:n kautta on monta, joten olisi turhan runsassanaista kirjoittaa jokaiselle asennukselle oma tehtävä. Tästä syystä Ansible-skripteissä voi käyttää with\_items-avainta. Kyseinen avain käytännössä taulukko ohjelmista, jotka halutaan asentaa. Sitten apt-moduulin name-avaimen kohdalle ei laitetakkaan yksittäisen paketin nimeä vaan \code{"\{\{ item \}\}"}. Näin asennetaan tarvittavat paketit: nodejs ja build-essential.
+Seuraava tehtävä käyttää aikaisemmin nähtyä apt-moduulia. Usein asennettavia paketteja apt:n kautta on monta, joten olisi turhan runsassanaista kirjoittaa jokaiselle asennukselle oma tehtävä. Tästä syystä Ansible-skripteissä voi käyttää with\_items-avainta. Kyseinen avain on käytännössä taulukko ohjelmista, jotka halutaan asentaa. Sitten apt-moduulin name-avaimen kohdalle ei laitetakkaan yksittäisen paketin nimeä vaan \code{"\{\{ item \}\}"}. Näin asennetaan tarvittavat paketit: nodejs ja build-essential.
 
 Lopuksi Noden päivitysskripti poistetaan file-moduulilla. State avaimen parametriksi annetaan tällöin absent.
 
 Nyt playbook on valmis Node ympäristön luomiseen. Ajetaan siis komento \code{vagrant up}. Nyt Vagrant tekee samoja asioita mitä aikaisemmin esim asentaa Ubuntun, ohjaa portteja virtuaalikoneesta isäntäkoneeseen tms. Kun Vagrant on suorittanut perustehtävät se alkaa asentamaan Ansiblen avulla Nodea. Kuvassa \ref{fig:ansible-running} nähdään kun Ansible kertoo tehtävä tehtävältä mitä se on tekemässä.
 
-Kuvasta huomataan, että shell provisionerin sijasta käytetään ansible provisiointi, niin kuin Vagrantfilessä määriteltiin. Ensiksi Ansible ilmoittaa mille kohdekoneille se ajaa tehtäviä. Tässä tapauksessa se on kaikki eli pelkästään virtuaalikone, koska muita ei ole saatavilla. Tästä eteen päin Ansible näyttää ihmisluettavan tekstin, jossa lukee sen hetkisen tehtävän nimi. Tehtävän ala puolella miten tehtävän suorituksessa tehtiin. Tila ok tarkoittaa, että tehtävää ei tarvinnut suorittaa. Kuvassa esimerkiksi pakettien päivitystehtävä ei suoritettu, koska paketit oli päivitetty jo aikaisemmin. Tällöin Ansible vain ohittaa tehtävän ja siirtyy eteen päin.
+Kuvasta huomataan, että shell provisionerin sijasta käytetään ansible provisiointi, niin kuin Vagrantfilessä määriteltiin. Ensiksi Ansible ilmoittaa mille kohdekoneille se ajaa tehtäviä. Tässä tapauksessa se on kaikki eli pelkästään virtuaalikone, koska muita ei ole saatavilla. Tästä eteen päin Ansible näyttää ihmisluettavan tekstin, jossa lukee sen hetkisen tehtävän nimi. Tehtävän ala puolella miten tehtävän suorituksessa tehtiin. Tila ok tarkoittaa, että tehtävää ei tarvinnut suorittaa. Kuvassa esimerkiksi pakettien päivitystehtävä ei suoritettu, koska paketit oli päivitetty jo aikaisemmin. Tällöin Ansible vain ohittaa tehtävän ja siirtyä eteenpäin.
 
 Tehtävä, jossa ladataan Noden päivitysskripti on tilana changed, joka tarkoittaa, että pakettia ei ole ennen asennettu tai se on esimerkiksi asennettu ennen, mutta nyt se on jostain syystä poistettu. Ensimmäisellä kerralla tietysti ajettaessa syy on juuri asennettu virtuaalikone, johon ei ole vielä asennettu mitään.
 
@@ -217,6 +217,8 @@ server.listen(PORT, () => {
   \caption{Node-palvelimen vastaus isäntäkoneessa}
   \label{fig:node-server-response}
 \end{figure}
+
+\subsection{Ansible oikeassa maailmassa}
 
 
 Muista kertoa ansiblen sivusta galaxy.ansible.com
