@@ -220,5 +220,44 @@ server.listen(PORT, () => {
 
 \subsection{Ansible oikeassa maailmassa}
 
+Määrittämällä kaikki playbookin tehtävät yhdessä tiedostossa on yleisesti huono tapa. Tosin asian oppimisen ja yksinkertaisen projektien näkökulmasta siinä ei ole mitään vikaa. Mutta oikeasti playbookin eri tehtävät pitää jaotella erilaisiin rooleihin.
+
+Roolien tarkoitus on jäsentää samaan aiheeseen kuuluvat tehtävät samaan paikkaan. Roolittamisella saadaan helposti uudelleen käytettäviä osioita, joita voidaan käyttää muissakin projekteissa \cite{link:ansible-roles-and-includes}. Esimerkiksi Node halutaan asentaa moneen eri ympäristöön tai projektiin, joten se olisi hyvä jakaa yhteen rooliin.
+
+Roolien uudelleen käytettävyytta voidaan parantaa parametrisoimalla playbookkeja. Esimerkiksi tietokanta ohjelmistoa asentaessa tietokannan portti usein parametrisoidaan. Näin kyseinen rooli voidaan kopioida sellaisenaan toiseen projektiin ja ainoastaan muutetaan tietokannan portti oikeaksi.
+
+\subsection{Ansible roolien käyttäminen}
+
+Seuraavaksi muutetaan aikaisemmin tehty virtuaalikoneen Ansiblen playbook roolipohjaiseksi. Lisäksi playbookkiin lisätään MongoDB, joka on suosittu tietokantaohjelma Node-projekteissa. Noden ja MongoDB:n asennus jaetaan erillisiin rooleihin, joka helpottaa roolien uudelleenkäyttöä muissa projekteissa.
+
+Ensinksi luodaan projektin juureen ansible-niminen kansio, johon tulee kaikki Ansibleen liittyvät tiedostot. Siirretään playbook.yml tiedosto ansible-kansioon.
+
+Luodaan hosts-tiedosto ansible-kansioon. Hosts-tiedostossa kerrotaan Ansiblelle kaikkien kohdekoneiden tietoja, kuten ip-osoite. Kohdekoneita voidaan myös ryhmitelmmä hosts-tiedostossa. Esimerkiksi jos tietokantapalvelimia on monta niin ne voi nimetä hosts-tiedostossa esimerkiksi databases-ryhmän alle.
+
+Kuviosta nähdään hosts-tiedoston sisältö. Kuviossa \ref{listing:ansible-hosts} hakasulkeiden sisällä oleva teksti tarkoittaa ryhmää ja sen alapuolella olevat osoitteet ovat kyseisen ryhmän kohdekoneita. Nyt kohdekoneena on vain localhost eli virtuaalikone.
+
+\begin{lstlisting}[
+  label=listing:ansible-hosts,
+  language=bash,
+  caption=Hosts-tiedoston sisältö,
+  float=h
+]
+[local]
+localhost
+\end{lstlisting}
+
+Seuraavaksi ansible kansioon lisätään ansible.cfg-tiedosto. Tiedoston sisältö näkyy kuviosta \ref{listing:ansible-config}. Tiedostossa kerrotaan mistä Ansiblen täytyy etsiä hosts-tiedostoa. Oletuksena hosts-tiedostoa etsitään polusta \code{etc/ansible/hosts} \cite{link:ansible-inventory}.
+
+\begin{lstlisting}[
+  label=listing:ansible-config,
+  language=bash,
+  caption=ansible.cfg-tiedoston sisältö,
+  float=h
+]
+[defaults]
+inventory = ./hosts
+\end{lstlisting}
+
+
 
 Muista kertoa ansiblen sivusta galaxy.ansible.com
