@@ -228,13 +228,13 @@ Roolien uudelleen käytettävyytta voidaan parantaa parametrisoimalla playbookke
 
 \subsection{Ansible roolien käyttäminen}
 
-Seuraavaksi muutetaan aikaisemmin tehty virtuaalikoneen Ansiblen playbook roolipohjaiseksi. Lisäksi playbookkiin lisätään MongoDB, joka on suosittu tietokantaohjelma Node-projekteissa. Noden ja MongoDB:n asennus jaetaan erillisiin rooleihin, joka helpottaa roolien uudelleenkäyttöä muissa projekteissa.
+Seuraavaksi muutetaan aikaisemman virtuaalikoneen playbook roolipohjaiseksi. Lisäksi playbookkiin lisätään MongoDB, joka on suosittu tietokantaohjelma Node-projekteissa. Noden ja MongoDB:n asennus jaetaan erillisiin rooleihin, jotka helpottavat kyseisten ohjelmien uudelleenkäyttöä muissa projekteissa. Lisäksi virtuaalikoneelle annetaan ip-osoite, koska tällöin voidaan ajaa monta virtuaalikonetta yhtä aikaa. Siten voidaan tehdä täydellinen kopio tulevasta tuotantoympäristöstä. Yleisesti tällaisessa ympäristössä esimerkiksi tietokanta on omalla palvelimellaan. Näin voidaan varmistua, että koko järjestelmä toimii, jos paikallisesti ympäristö on mahdollisimman samanlainen.
 
 Ensinksi luodaan projektin juureen ansible-niminen kansio, johon tulee kaikki Ansibleen liittyvät tiedostot. Siirretään playbook.yml tiedosto ansible-kansioon.
 
-Luodaan hosts-tiedosto ansible-kansioon. Hosts-tiedostossa kerrotaan Ansiblelle kaikkien kohdekoneiden tietoja, kuten ip-osoite. Kohdekoneita voidaan myös ryhmitelmmä hosts-tiedostossa. Esimerkiksi jos tietokantapalvelimia on monta niin ne voi nimetä hosts-tiedostossa esimerkiksi databases-ryhmän alle.
+Luodaan hosts-tiedosto ansible-kansioon. Hosts-tiedostossa kerrotaan Ansiblelle kaikkien kohdekoneiden tietoja, kuten ip-osoite. Kohdekoneita voidaan myös ryhmitellä hosts-tiedostossa. Esimerkiksi jos tietokantapalvelimia on monta niin ne voidaan nimetä hosts-tiedostossa esimerkiksi databases-ryhmän alle.
 
-Kuviosta nähdään hosts-tiedoston sisältö. Kuviossa \ref{listing:ansible-hosts} hakasulkeiden sisällä oleva teksti tarkoittaa ryhmää ja sen alapuolella olevat osoitteet ovat kyseisen ryhmän kohdekoneita. Nyt kohdekoneena on vain localhost eli virtuaalikone.
+Kuviosta \ref{listing:ansible-hosts} nähdään hosts-tiedoston sisältö. Hakasulkeiden sisällä oleva teksti tarkoittaa ryhmää ja sen alapuolella olevat osoitteet ovat kyseisen ryhmän kohdekoneita. Virtuaalikoneelle on nyt keksitty ip-osoite, koska näin voidaan ajaa monta virtuaalikonetta samanaikaisesti. Local-ryhmän alle on annettu keksitty ip-osoite, joka myöhemmin täytyy lisätä myös Vagrantfileen.
 
 \begin{lstlisting}[
   label=listing:ansible-hosts,
@@ -243,10 +243,79 @@ Kuviosta nähdään hosts-tiedoston sisältö. Kuviossa \ref{listing:ansible-hos
   float=h
 ]
 [local]
-localhost
+126.138.117.250
 \end{lstlisting}
 
-Seuraavaksi ansible kansioon lisätään ansible.cfg-tiedosto. Tiedoston sisältö näkyy kuviosta \ref{listing:ansible-config}. Tiedostossa kerrotaan mistä Ansiblen täytyy etsiä hosts-tiedostoa. Oletuksena hosts-tiedostoa etsitään polusta \code{etc/ansible/hosts} \cite{link:ansible-inventory}.
+Seuraavaksi ansible kansioon lisätään ansible.cfg-tiedosto. Tällä tiedostolla voidaan muuttaa joitakin Ansiblen asetuksia, vaikkakin peruskäyttäjille oletusasetukset ovat yleensä riittävät. Tiedoston sisältö näkyy kuviosta \ref{listing:ansible-config}. Tiedostossa kerrotaan mistä Ansiblen täytyy etsiä hosts-tiedostoa. Oletuksena hosts-tiedostoa etsitään polusta \code{etc/ansible/hosts} \cite{link:ansible-inventory}. Kohdekoneet halutaan määrittää projektikohtaisesti ja oletuspolussa oleva hosts-tiedosto ei edes tulisi projektin repositorioon mukaan. Kun käyttää Ansiblen komentoja suoraan komentoriviltä ja haluaa, että Ansibe käyttää tätä cfg-tiedostoa on tärkeää olla samassa kansiossa, jossa cfg-tiedosto on. Muuten Ansible käyttää oletus hosts-tiedostoa.
+
+Nyt Vagrantfileen pitää lisätä asetukset, jotka kertovat Vagrantille  mistä se löytää kohdekoneet, jotka vaativat asennusta. Vagrantfileen lisätään \code{inventory\_path} arvo, joka kertoo missä hosts-tiedosto sijaitsee \cite{link:vagrant-ansible-settings}. Lisäksi annetaan \code{limit} ominaisuuden arvoksi local, joka rajoittaa asennukset kohde koneisiin, jotka kuuluvat ryhmään "local". Myös Vagranfilessä pitää muuttaa playbookin sijainnin polku, koska playbook sijaitsee nyt ansible kansiossa. Lopuksi annetaan virtuaalikoneelle aikaisemmin arvottu ip-osoite. Lopullinen Vagranfile näkyy kuviossa \ref{listing:final-node-vagrantfile-with-roles}.
+
+Viimeiseksi muutetaan playbook.yml tiedostosta hosts-kohdan arvoksi local, koska nyt saatavilla on hosts tiedosto ja haluamme kohdistaa asennuksen vain kohdekoneille, jotka ovat ryhmässä local.
+
+Tässä vaiheessa virtuaalikoneiden asennus on valmisteltu monien virtuaalikoneiden käyttöä varten ja enemmän parhaiden käytäntöjen suuntaan. Seuraavaksi jaotellaan eli ohjelmien asennus rooleihin.
+
+Kaikki roolit pitää olla roles-kansiossa. Sen alle lisätään kansio, jonka nimi on halutunut roolin nimi esimerkiksi: nodejs. Kaikki rooliin liittyvät tehtävät tulevat tasks kansion alle roolin omassa kansiossa. Kaikkien tasks kansioiden tulee sisältää main.yml, joka kokoaa kaikki kyseiseen rooliin liittyvät tehtävät. Siirtymällä ansible kansioon ja ajamalla \code{mkdir -p roles/nodejs/tasks} voidaan luoda kaikki halutut kansiot Nodelle yhdellä kommennolla.
+
+Lisätään tasks kansion alle main.yml tiedosto. Tiedoston sisällöksi leikataan playbook.yml tiedostosta kaikki Noden asentamiseen liittyvät tehtävät. Tehtävien rakennetta ei tarvitse muuttaa, sillä main.yml-tiedostossa voi alkaa suoraa luettelemaan tehtäviä aikaisemmalla rakenteella: nimi ja moduuli.
+
+Seuraavaksi tehdään samat asiat mongodb-roolille. Luodaan sama kansiorakenne ja lisätään main.yml tiedosto. Kuviossa \ref{listing:install-mongo} on kuvattu main.yml-tiedoston sisältö, joka asentaa MongoDB:n.
+
+\begin{lstlisting}[
+  label=listing:install-mongo,
+  language=Ruby,
+  caption=MongoDB:n asennukseen tarvittavat tehtävät,
+  float=h
+]
+---
+- name: Import public key used by the package management system
+  apt_key:
+    keyserver: hkp://keyserver.ubuntu.com:80
+    id: 7F0CEB10
+
+- name: Create a list file for MongoDB
+  copy:
+    content:"deb http://repo.mongodb.org/apt/ubuntu precise/
+    mongodb-org/3.0 multiverse"
+    dest: /etc/apt/sources.list.d/mongodb-org-3.0.list
+
+- name: Reload local package database
+  apt:
+    update_cache: yes
+
+- name: Install the MongoDB packages
+  apt:
+    name: mongodb-org
+
+- name: Make sure MongoDB is started
+  service:
+    name: mongod
+    state: restarted
+\end{lstlisting}
+
+lololol
+
+\begin{lstlisting}[
+  label=listing:final-node-vagrantfile-with-roles,
+  language=Ruby,
+  caption=Lopullinen Vagrantfile jossa host-tiedoston sijainti on määritelty,
+  float=h
+]
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/trusty64"
+
+  config.vm.network "private_network", ip: "126.138.117.250"
+
+  config.vm.network "forwarded_port", guest: 8080, host: 3000
+
+  config.vm.synced_folder ".", "/vagrant"
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "ansible/playbook.yml"
+    ansible.limit = "local"
+    ansible.inventory_path = "ansible/hosts"
+  end
+end
+\end{lstlisting}
 
 \begin{lstlisting}[
   label=listing:ansible-config,
@@ -257,6 +326,10 @@ Seuraavaksi ansible kansioon lisätään ansible.cfg-tiedosto. Tiedoston sisält
 [defaults]
 inventory = ./hosts
 \end{lstlisting}
+
+\subsection{Ansiblen ongelmat}
+
+Asentaminen windowssille ei helppoa, ratkaisu asentaa ansible myös vagrant koneelle
 
 
 

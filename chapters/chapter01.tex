@@ -147,6 +147,10 @@ Kuvassa \ref{fig:how-vagrant-works} on visualisoitu kaksisuuntainen kansion synk
 config.vm.synced_folder ".", "/var/www/html"
 \end{lstlisting}
 
+\subsection{Vagrantin ongelmat}
+
+KIRJOITA TÄHÄN VAGRANTIN ONGELMISTA ESIM NPM INSTALL EI MEE LÄPI WINDOWSIN KANSSA KOSKA LIIAN PITKÄT TIEDOSTOPOLUT  
+
 \subsection{Vagrantin yhteenveto}
 
 Lopullinen Vagrantfile on kuvion \ref{listing:vagrant-final-apache-setup} mukainen. Vagrantfilessä määriteltiin ensiksi "pohjaboxi", joka määrittelee käyttöjärjestelmän. Seuraavaksi ohjataan virtuaalikoneen portti 80 osoittamaan isäntäkoneen porttiin 8080. Synkronoidaan nykyinen projektikansio Apachen html-juureen ja lopuksi määritellään skripti, joka ajetaan virtuaalikoneella kun kone on käynnistetty.
