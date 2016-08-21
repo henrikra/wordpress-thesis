@@ -371,7 +371,7 @@ inventory = ./hosts
 
 \subsection{Ansiblen ongelmat}
 
-Vaikka kaikki samoista määrittelyistä tehdyt virtuaalikoneet ovat identtisiä ja niiden pitäisi toimia isäntäkoneesta huolimatta ei ongelmilta kuitenkaan voida välttyä. Windowsilla Ansiblen asennus ei mene täysin suoraviivaisesti. AnsibleWorks:n CTO on kertonut, että Windowssia ei ainakaan lähiaikoina aiota tukea isäntäkoneena Ansiblen kanssa \cite{link:windows-support-for-ansible}.
+Vaikka kaikki samoista määrittelyistä tehdyt virtuaalikoneet ovat identtisiä ja niiden pitäisi toimia isäntäkoneesta huolimatta, ei ongelmilta kuitenkaan voida välttyä. Windowsilla Ansiblen asennus ei mene täysin suoraviivaisesti. AnsibleWorks:n CTO on kertonut, että Windowssia ei ainakaan lähiaikoina aiota tukea isäntäkoneena Ansiblen kanssa \cite{link:windows-support-for-ansible}.
 
 Windows:lle saa kuitenkin asennettua Ansiblen säätämällä. Yleisin ratkaisu on käyttää Cygwin:ä, jolla saa asennettua unix-pohjaisten järjestelmien paketteja Windowsille \cite{link:cygwin}. Toinen kiertoreitti on asentaa Ansible virtuaalikoneelle. Käytännössä tämä tarkoittaa, että Vagrant provisioi ainoastaan Ansible asennuksen "vagrant up" vaiheessa. Virtuaalikoneen sisälle viedään kaikki Ansible-skriptit. Kun on siirrytty virtuaalikoneen sisälle niin sitten ajetaan Ansible-skriptit. Näin isäntäkoneella ei tarvitse olla asenettuna Ansiblea. Toinen hyvä syy käyttää tätä ratkaisua on sitoa Ansiblen asennus tiettyy versioon, jolloin Ansiblenkin versio on aina sama. Tällöin esimerkiksi jos Ansible muuttaa moduuleita vanhat skriptit eivät voi mennä rikki.
 

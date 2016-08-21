@@ -147,10 +147,6 @@ Kuvassa \ref{fig:how-vagrant-works} on visualisoitu kaksisuuntainen kansion synk
 config.vm.synced_folder ".", "/var/www/html"
 \end{lstlisting}
 
-\subsection{Vagrantin ongelmat}
-
-KIRJOITA TÄHÄN VAGRANTIN ONGELMISTA ESIM NPM INSTALL EI MEE LÄPI WINDOWSIN KANSSA KOSKA LIIAN PITKÄT TIEDOSTOPOLUT  
-
 \subsection{Vagrantin yhteenveto}
 
 Lopullinen Vagrantfile on kuvion \ref{listing:vagrant-final-apache-setup} mukainen. Vagrantfilessä määriteltiin ensiksi "pohjaboxi", joka määrittelee käyttöjärjestelmän. Seuraavaksi ohjataan virtuaalikoneen portti 80 osoittamaan isäntäkoneen porttiin 8080. Synkronoidaan nykyinen projektikansio Apachen html-juureen ja lopuksi määritellään skripti, joka ajetaan virtuaalikoneella kun kone on käynnistetty.
@@ -192,3 +188,28 @@ Vagrantin haitat
   \item Virtuaalikoneella työskentely vie enemmän keskusmuistia kuin suoraan isäntäkoneella työskentely.
   \item Yleensä tarvitsee tehdä enemmän konfiguraatiota esimerkiksi kun tarkkaillaan tiedostojen muutoksia ja halutaan reagoida niihin.
 \end{bullet-list}
+
+\subsection{Vagrantin ongelmat}
+
+Vaikka Vagrant lupaa kotisivuillaa \cite{link:vagrant}, että Vagrant luo identtiset ympäristöt kaikille tiimissä, tätä ei kuitenkaan täysin ongelmitta saavuteta.
+
+Suurin ongelman aiheuttaja on isäntäkoneessa oleva Windows. Yleensä Windowssille tarvitsee tehdä ylimääräisiä säätöjä esimerkiksi kun tiedostoja synkronoidaan isäntäkoneelta virtuaalikoneelle. Vagrantin perus tiedostojen synkronointi on hidas \cite{link:vagrant-shared-folders} kun synkronoitavana on paljon tiedostoja. Tilannetta voidaan nopeuttaa vaihtamalla synkronointi tavaksi NFS \cite{link:nfs-wiki}, joka on testituloksien mukaan huomattavasti nopeampaa. Windows ei kuitenkaan tue NFS:ää, joten se kannattaa ottaa huomioon isäntäkonetta valittaessa.
+
+Toinen yleinen ongelma Windowssissa on kun projektissa on kun projektin riippuvuuksia asennetaan npm:n avulla. Kun kutsutaan \code{npm install} niin npm hakee projektin riippuvuudet, sen jälkeen riippuvuuksien riippuvuudet sitten niiden riippuvuudet ja niin edelleen. Tästä aiheutuu pitkiä tiedostopolkuja. Kuviossa \ref{listing:npm-error-long-path} on esimerkki npm:n virheestä, joka sisältää pitkän tiedostopolun.
+
+Pitkien tiedostopolkujen ongelmaa on ratkaistu muun muassa säätämällä Vagrantin lähdekoodissa synkronoitavien kansioiden käsittelyä \cite{link:fix-npm-on-vagrant-on-windows}. Tai asentamalla riippuvuudet ilman linkkejä \cite{link:npm-does-not-work-in-vagrant}. Yksi paras ratkaisuista on tehdä virtuaalikoneen sisällä symbolinen linkki riippuvuuskansiosta, jolloin Windows ei yritä synkata kansiota isäntäkoneelle, eikä mene sekaisin.
+
+\begin{lstlisting}[
+  label=listing:npm-error-long-path,
+  language=Ruby,
+  caption=Npm virhe jossa pitkä tiedostopolku,
+  float=h
+]
+Error: EPERM, open '/srv/www/harvsworld/htdocs/wp-content/themes/
+harvsworld/node_modules/gulp-imagemin/node_modules/imagemin/
+node_modules/imagemin-optipng/node_modules/optipng-bin/
+node_modules/bin-wrapper/node_modules/download-status/
+node_modules/lpad-align/package.json'
+\end{lstlisting}
+
+Vaikka Vagrant mahdollistaa kehitysympäristö pystytyksen lähes millä tahansa isäntäkoneella kannattaa kuitenkin tiimin sisällä olla samat käyttöjärjestelmät. Tai edes pelkkiä unix-pohjaisia käyttöjärjestelmiä. Näin säästytään mahdollisilta lisäsäädöiltä, jotka pääasiassa johtuvat Windowssista.
