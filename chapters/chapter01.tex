@@ -4,16 +4,16 @@
 Yleinen ongelma usean kehittäjän tiimissä on kehitysympäristöjen erilaisuus. Tämä ilmenee parhaiten kun kehittäjät käyttävät työkoneellaan eri käyttöjärjestelmiä kuten Linuxia, OS X:ää ja Windowsia. Usein projekteihin sisältyy pitkät asennusohjeet, jossa kerrotaan tarkasti mitkä riippuvuudet pitää asentaa sekä niiden tarkat versionumerot. Usein riippuvuuksien asennus on erilaista riippuen käyttöjärjestelmästä. Ei ole epätavallista, että ympäristön pystytykseen voi mennä muutama työpäivä. Oman kokemukseni mukaan pystytysprosessiin menee paljon henkilötyötunteja, sillä lähes aina projektiin tullut uusi kehittäjä tarvitsee apua projektissa aikaisemmin olleilta henkilöiltä.
 
 \section{Ratkaisu}
-Jotta kaikille kehittäjille saadaan täysin samanlaiset kehitysympäristöt niin yksi ratkaisu on virtuaalikoneet. VirtualBox tai WMware ovat esimerkkejä virtuaalikoneohjelmista. Virtuaalikoneet ovat täysiverisiä käyttöjärjestelmiä isäntäkoneen eli kehittäjän koneen sisällä. Usein kehityskäyttöjärjestelmäksi valitaan jokin Linux paketti esimerkiksi Ubuntu. Näin kaikille kehittäjille saadaan sama käyttöjärjestelmä, jossa kehitys tapahtuu. Tämä vähentää riippuvuuksien asentamisessa tapahtuvaa virheiden määrää.
+Yksi ratkaisu saada samanlaiset kehitysympäristöt ohjelmoijille on käyttää virtuaalikoneita. VirtualBox tai WMware ovat esimerkkejä virtuaalikoneohjelmista. Virtuaalikoneet ovat täysiverisiä käyttöjärjestelmiä isäntäkoneen eli kehittäjän koneen sisällä. Usein kehityskäyttöjärjestelmäksi valitaan jokin Linux paketti esimerkiksi Ubuntu. Näin kaikille kehittäjille saadaan sama käyttöjärjestelmä, jossa kehitys tapahtuu. Tämä vähentää riippuvuuksien asentamisessa tapahtuvaa virheiden määrää.
 
-Pelkkä käyttöjärjestelmän yhdenmukaistaminen ei riitä sillä yleensä riippuvuuksien asentamisessa ongelmat ilmenevät. Pelkkä VirtualBox ei riitä sillä kaikki siihen halutut ohjelmat pitää asentaa käsin tai tehdä iso kokoinen levykuva, josta asennettaisiin ympäristö.
+Käyttöjärjestelmien yhdenmukaistaminen ei yksistään riitä, sillä ongelmat ilmenevät usein riippuvuuksien asentamisessa. Pelkkä VirtualBoxin lisäksi tarvitaan muita ohjelmia, koska muuten halutut ohjelmat pitää asentaa käsin tai tehdä iso kokoinen levykuva, josta ympäristö asennettaisiin.
 
 \section{Vagrant}
-Vagrantin avulla voidaan luoda virtuaalikoneita helposti komentoriviltä. Vagrant on yksinkertainen ohjelma, joka vain käskyttää VirtualBoxia. Tästä syystä VirtualBox täytyy olla asennettuna, jotta Vagrant toimii.
+Vagrantin avulla voidaan luoda virtuaalikoneita helposti komentoriviltä. Se on yksinkertainen ohjelma, joka ainoastaan antaa komentoja VirtualBoxille. Tästä syystä VirtualBox täytyy olla asennettuna, jotta Vagrant toimii.
 
 Vagranttia kannattaa ajatella vertauskuvan kautta. Kuvitellaan, että Erik haluaa perustaa Subway-ravintolan. Koska Subway on pikaruokaravintolaketju sillä on tarkasti määritelty muun muassa mitä aineksia ruoka-annoksissa saa käyttää, miten ravintola sisustetaan ja minkälaiset laitteisto täytyy olla.
 
-Erik saa itse valita tilan johon perustaa ravintolan. Tilan valitsemisen jälkeen hänen täytyy sisustaa ravintola Subwayn määrittämällä tavalla. Seuraavaksi täytyy hankkia uuni, jääkaappi ja muut ruuan tekemiseen tarkoitetut välineet. Tässä vaiheessa saattaa tulla tilanne, jossa kaikki hankitut laitteet eivät välttämättä sovi valittuun liiketilaan. Esimerkiksi Erikin valitsemalle jääkaappille ei löydy sopivaa paikkaa liiketilasta. Paljon yhteensopivuus ongelmia voi syntyä ennen kuin uusi Subway-ravintola voidaan avata. Tämä on luonnollista, koska Subwayn johto ei voi tietää miten kaikki laitteet menevät mihin tahansa liiketilaan.
+Erik saa itse valita tilan, johon ravintola perustetaan. Tilan valitsemisen jälkeen hänen täytyy sisustaa ravintola Subwayn määrittämällä tavalla. Seuraavaksi täytyy hankkia uuni, jääkaappi ja muut ruuan tekemiseen tarkoitetut välineet. Tässä vaiheessa saattaa tulla tilanne, jossa kaikki hankitut laitteet eivät välttämättä sovi valittuun liiketilaan. Esimerkiksi Erikin valitsemalle jääkaappille ei välttämättä löydy sopivaa paikkaa. Yhteensopivuus ongelmia voi syntyä ennen kuin uusi Subway-ravintola voidaan avata. Tämä on luonnollista, koska Subwayn johto ei voi tietää miten kaikki laitteet asettuvat mihin tahansa liiketilaan.
 
 Kun Subwayn liikejohto huomasi, että uusilla ravintoloiden perustajilla on usein ongelmia ravintolan pystyttämisessä ja sen saamiseksi ohjeiden mukaiseen kuntoon he päättivät helpottaa asiaa. He kehittivät uusien ravintoloiden perustajille paketin, josta täytyy vain painaa nappia eikä ravintoloitsijan tarvitse tehdä muuta. Erik kokeili uutta asennuspakettia ja huomasi, että paketista tuli ulos robotti, joka lähti heti rakentamaan liiketilaa ravintolalle. Robotti rakentaa aina samanlaisen tyhjän liiketilan johdon määrittelemällä tavalla. Kun liiketila on valmis robotti aloittaa jääkaappien, uunien ja muiden laitteiden asentamisen, jotka ovat välttämättömiä Subway-ravintolan pitäjälle. Kun laitteet ovat asennettu liiketila viimeistellään sisustuksella. Robotti tiesi miten asennukset ja sisustaminen pitää tehdä, koska sille on määritelty ohje, jota se lukee. Kun robotti on tehnyt kaiken se antaa liiketilan avaimet Erikille, jonka ei tarvitse muuta kuin laittaa uunit päälle niin hän voi aloittaa myymisen.
 
@@ -22,7 +22,7 @@ Vertauskuvassa liiketila on kehittäjän oma tietokone. Liiketilaan halutaan saa
 Paketti, joka sisältää robotin kuvastaa automatisoitua kehitysympäristöä. Kun robotti luo liiketilan tyhjästä tarkoitetaan virtuaalikoneen luomista isäntäkoneen sisälle.
 
 \subsection{Vagrantin toiminta}
-Vagrant luo isäntäkoneen sisälle virtuaalikoneen kuten kuvassa \ref{fig:how-vagrant-works}. Virtuaalikone sisältää kaikkille kehittäjille yhteinen käyttöjärjestelmän. Lisäksi Vagrantille annetaan "resepti", jonka mukaan se asentaa kaikki projektin riippuvuudet virtuaalikoneelle. Koodin kääntäminen, komentojen ajaminen, mahdollisen tietokannan käyttäminen tms. asiat tehdään virtuaalikoneella. Näin isäntäkone pysyy puhtaana turhista ohjelmista, eikä synny aikaisemmin mainittuja ongelmia. Isäntäkoneessa tapahtuu koodin kirjoittaminen, tiedostojen luonti ja versiohallinan käyttäminen.
+Vagrant luo isäntäkoneen sisälle virtuaalikoneen kuten kuvassa \ref{fig:how-vagrant-works}. Virtuaalikone sisältää kaikkille kehittäjille yhteinen käyttöjärjestelmän. Lisäksi Vagrantille annetaan "resepti", jonka mukaan se asentaa kaikki projektin riippuvuudet virtuaalikoneelle. Koodin kääntäminen, komentojen ajaminen, mahdollisen tietokannan käyttäminen tms. asiat tehdään virtuaalikoneella. Näin isäntäkone pysyy puhtaana turhista ohjelmista, eikä synny aikaisemmin mainittuja ongelmia. Isäntäkoneessa tapahtuu koodin kirjoittaminen, tiedostojen luonti ja versionhallinan käyttäminen.
 
 Kun uusi kehittäjä liittyy tiimiin hänen tarvitsee vain kloona repositorio, mennä projektin kansioon ja komentaa \code{vagrant up}. Muutaman hetken päästä uudella kehittäjällä täydellinen kehitysympäristö, joka on täysin samanlainen kaikkien tiimin kehittäjien kanssa. Uusi kehittäjä käyttää isäntäkonetta vain koodaamisessa. Projektin koodit synkronoidaan virtuaalikoneelle Vagrantin avustuksella. Näin kehittäjä voi käyttää tuttua käyttöjärjestelmää haluamillaan ohjelmilla, jotka liittyvät koodin tuottamiseen. Samalla säilyttäen saman ajo- ja käännösympäristön kuin muilla kehittäjillä.
 
@@ -33,7 +33,7 @@ Kun uusi kehittäjä liittyy tiimiin hänen tarvitsee vain kloona repositorio, m
 \end{figure}
 
 \subsection{Vagrantin käyttäminen}
-Ennen Vagrantin käytön aloittamista täytyy VirtualBox ja Vagrant olla asennettuna. Avaamalla terminaalin voit nyt käyttää vagrant-komentoja terminaalissa. Jos komento \code{vagrant -v} palauttaa Vagrantin nykyisen version niin asennus on mennyt oikein. Tästä eteenpäin työskennellään koko ajan terminaalissa.
+Ennen Vagrantin käytön aloittamista täytyy VirtualBox ja Vagrant olla asennettuna. Vagranttia käytetään terminaalin kautta. Asennus on onnistunut, jos komento \code{vagrant -v} palauttaa versionumeron.
 
 Siirry projektikansioon ja aja \code{vagrant init}. Vagrant luo kansioon Vagrantfile-nimisen tiedoston. Vagrantfile on käytännössä Ruby-ohjelmointi kieltä, jota Vagrant osaa lukea kun se ajetaan. Vagrantfilessä voi siis käyttää kaikkia Ruby-kielen toimintoja. Kuviosta \ref{listing:InitialVagrantfile} näkyy tiedoston sisältö ilman kommentteja.
 
@@ -48,7 +48,7 @@ Vagrant.configure(2) do |config|
 end
 \end{lstlisting}
 
-Kaikki virtuaalikoneen asetukset tulevat config-osion sisälle. Tällä hetkellä koneelle määritellään vain boxi: "ubuntu/trusty64". Mahdollisia boxeja voi etsiä osoitteesta: \url{https://atlas.hashicorp.com/boxes/search}. Boxit ovat käytännössä käyttöjärjestelmä eli pohja virtuaalikoneelle. Tässä tapauksessa boxina on Ubuntu, joka perustuu Debian Linux-jakeluun \cite{link:ubuntu}. Boxi on ravintolavertauskuvassa ravintolan liiketila. Boxi on pakko olla, mutta itsessään sillä ei tee paljon mitään. Boxi täytyy "sisustaa" eli asentaa projektiin liittyvät ohjelmat ja riippuvuudet.
+Kaikki virtuaalikoneen asetukset tulevat config-osion sisälle. Tällä hetkellä koneelle määritellään vain boxi: "ubuntu/trusty64". Mahdollisia boxeja voi etsiä osoitteesta: \url{https://atlas.hashicorp.com/boxes/search}. Boxit ovat käytännössä käyttöjärjestelmä eli pohja virtuaalikoneelle. Tässä tapauksessa boxina on Ubuntu, joka perustuu Debian Linux-jakeluun \cite{link:ubuntu}. Boxi on ravintolavertauskuvassa ravintolan liiketila. Boxi on pakko olla, mutta itsessään sillä ei tee paljon mitään. Boxi täytyy \enquote{sisustaa} eli asentaa projektiin liittyvät ohjelmat ja riippuvuudet.
 
 Yksinkertaisin keino asentaa ohjelmia virtuaalikoneelle on shell-skriptien avulla. Jos projektiin tarvitsee asentaa vain muutama ohjelma voidaan ne asentaa laittamalla asennus-skripti suoraan Vagrantfileen. 
 
@@ -62,7 +62,7 @@ config.vm.provision "shell",
   inline: "apt-get update; apt-get install -y apache2"
 \end{lstlisting}
 
-Kuviossa \ref{listing:vagrant-shell-inline} Vagrantfilen sisään on lisätty provisiointi shell-skripti, joka on tyyppiä inline. Tällä tarkoitetaan, että koko skripti annetaan suoraan stringinä. Tässä esimerkissä \code{apt-get update} päivittää virtuaalikoneen lokaalitpaketti linkit. \code{apt-get install -y apache2} tarkoittaa että asennetaan Apache-palvelinohjelma, jota monet käyttävät esimerkiksi PHP-projekteissa. Lippu -y pitää lisätä, koska apt varmistaan usein käyttäjältä, että haluaako hän varmasti asentaa kyseisen paketin. Lippu varmistaa sen, että kaikki pakettiin liittyviin kysymyksiin vastataan kyllä.
+Kuviossa \ref{listing:vagrant-shell-inline} Vagrantfilen sisään on lisätty provisiointi shell-skripti, joka on tyyppiä inline. Tällä tarkoitetaan, että koko skripti annetaan suoraan stringinä. Tässä esimerkissä \code{apt-get update} päivittää virtuaalikoneen lokaalit pakettilinkit. \code{apt-get install -y apache2} tarkoittaa että asennetaan Apache-palvelinohjelma, jota monet käyttävät esimerkiksi PHP-projekteissa. Lippu -y pitää lisätä, koska apt varmistaan usein käyttäjältä, että haluaako hän varmasti asentaa kyseisen paketin. Lippu varmistaa sen, että kaikki pakettiin liittyviin kysymyksiin vastataan kyllä.
 
 Skripti voidaan myös jakaa monelle riville Rubyn HEREDOC:n avulla kuvion \ref{listing:vagrant-shell-heredoc} osoittamalla tavalla. HEREDOC \cite{link:ruby-heredoc} mahdollistaa stringin kirjoittamisen monelle riville, mikä helpottaa luettavuutta kun asennetaan paljon ohjelmia.
 
@@ -78,7 +78,7 @@ config.vm.provision "shell", inline: <<-SHELL
 SHELL
 \end{lstlisting}
 
-Käytännössä kuitenkin shell-skripti kannattaa laittaa erilliseen tiedostoon kuten kuviossa \ref{listing:vagrant-shell-path}. Jos Vagrantfile ja shell-skripti ovat samassa kansiossa niin riittää kun laittaa vain skriptin nimen.
+Käytännössä kuitenkin shell-skripti kannattaa laittaa erilliseen tiedostoon kuten kuviossa \ref{listing:vagrant-shell-path}. Skriptin nimeäminen riittää, jos Vagrantfile ja shell-skripti ovat samassa kansiossa.
 
 Ulkoiseen skriptii täytyy laittaa alkuun kommentti, jossa kerrotaan, että kyseessä on shell-skripti. Ulkoisen skriptiin on helppo määritellä paljon eri ohjelmien asennuksia ja konfigurointeja.
 
@@ -102,7 +102,7 @@ apt-get update
 apt-get install -y apache2
 \end{lstlisting}
 
-Koska projektin koodaaminen tehdään host-koneella niin haluamme saada yhteyden esimerkiksi Apache-palvelimeen suoraan host-koneelta. Siksi seuraavaksi pitää avata virtuaalikoneen portteja host-koneelle. Apache vastaa oletuksena osoitteesta \url{http://localhost:80}, joten haluamme avata portin 80 isäntäkoneelle. Vagrantfileen voidaan määrittää mikä virtuaalikoneen portti halutaan ohjata mihin isäntäkoneen porttiin. Kuviossa \ref{listing:vagrant-port-mapping} virtuaalikoneen portti 80 ohjataan isäntäkoneen porttiin 8080.
+Ohjelmointi tehdään isäntäkoneella, joten olisi käytännöllistä saada siitä suora yhteys virtuaalikoneelle asennettuihin ohjelmiin. Tilanteessamme Apache on esimerkki tällaisesta ohjelmasta. Siksi seuraavaksi pitää avata virtuaalikoneen portteja host-koneelle. Apache vastaa oletuksena osoitteesta \url{http://localhost:80}, joten haluamme avata portin 80 isäntäkoneelle. Vagrantfileen voidaan määrittää mikä virtuaalikoneen portti halutaan ohjata mihin isäntäkoneen porttiin. Kuviossa \ref{listing:vagrant-port-mapping} virtuaalikoneen portti 80 ohjataan isäntäkoneen porttiin 8080.
 
 \begin{lstlisting}[
   label=listing:vagrant-port-mapping,
@@ -121,9 +121,7 @@ Nyt kun isäntäkoneella mennään selaimella osoitteeseen \url{http://localhost
   \label{fig:apache-default-page}
 \end{figure}
 
-Nyt kun Apache on asennettu oikein voidaan viedä virtuaalikoneelle projektin tiedostostot. Oletetaan, että projektissa on yksinkertaisuuden vuoksi vain index.html-tiedosto. Kuviossa \ref{listing:vagrant-synced-folder} näytetään miten haluttu kansio saadaan synkronoitua virtuaalikoneeseen.
-
-Ensimmäinen parametri kertoo mikä isäntäkoneen kansio halutaan synkronoida. Polun voi antaa relatiivisena tai absoluuttisena. Tässä tapauksessa parametri on relatiivisesti nykyinen kansio. Toinen parametri kertoo minne kansio halutaan synkronoitua virtuaalikoneessa. Isäntäkoneen kansio halutaan synkronoida kansioon /var/www/html, koska sieltä Apache lukee oletuksena tiedostoja. Nyt kun lisätään projektin juureen isäntäkoneella tiedosto index.html, jonka sisältönä on \code{Hello from project file} saadaan kuvan \ref{fig:index-file-response} mukainen vastaus Apachelta.
+Nyt kun Apache on asennettu oikein voidaan virtuaalikoneelle viedä projektin tiedostostot. Oletetaan, että projektissa on yksinkertaisuuden vuoksi vain index.html-tiedosto. Kuviossa \ref{listing:vagrant-synced-folder} näytetään miten haluttu kansio saadaan synkronoitua virtuaalikoneeseen. Ensimmäinen parametri kertoo mikä isäntäkoneen kansio halutaan synkronoida. Polun voi antaa relatiivisena tai absoluuttisena. Tässä tapauksessa parametri on relatiivisesti nykyinen kansio. Toinen parametri kertoo minne kansio halutaan synkronoida virtuaalikoneessa. Isäntäkoneen kansio halutaan synkronoida kansioon /var/www/html, koska sieltä Apache lukee oletuksena tiedostoja. Nyt kun lisätään projektin juureen isäntäkoneella tiedosto index.html, jonka sisältönä on \code{Hello from project file} saadaan kuvan \ref{fig:index-file-response} mukainen vastaus Apachelta.
 
 \begin{figure}[h]
   \includegraphics[width=\textwidth]{index-file-response}
