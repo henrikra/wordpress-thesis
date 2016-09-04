@@ -129,10 +129,10 @@ Nyt kun Apache on asennettu oikein voidaan virtuaalikoneelle viedä projektin ti
   \label{fig:index-file-response}
 \end{figure}
 
-Vagrant synkronoi tiedostot valittujen kansioiden välillä molempiin suuntiin. Kun tiedosto lisätään isäntäkoneella niin sama tiedosto ilmestyy virtuaalikoneelle. Samoin jos virtuaalikoneelle lisätään tiedosto synkronoituun kansioon niin tämä tiedosto tulee isäntäkoneelle. Työskennellessä on kuitenkin tarkoitus toimia lisäämällä tiedostoja aina isäntäkoneelle.
+Vagrant synkronoi tiedostot valittujen kansioiden välillä molempiin suuntiin. Kun tiedosto lisätään isäntäkoneella, sama tiedosto ilmestyy virtuaalikoneelle. Samoin jos virtuaalikoneelle lisätään tiedosto synkronoituun kansioon, tämä tiedosto tulee isäntäkoneelle. Työskennellessä on tarkoitus toimia lisäämällä tiedostoja aina isäntäkoneelle.
 
 
-Jos isäntä- ja virtuaalikoneella on kaksi saman nimistä tiedostoa niin isäntäkoneella oleva tiedosto ylikirjoittaa virtuaalikoneen tiedoston. Esimerkiksi kansiossa /var/www/html on Apachen oletus index.html-tiedosto, mutta projektin index.html ylikirjoittaa sen.
+Jos isäntä- ja virtuaalikoneella on kaksi saman nimistä tiedostoa, isäntäkoneella oleva tiedosto ylikirjoittaa virtuaalikoneen tiedoston. Esimerkiksi kansiossa /var/www/html on Apachen oletus index.html-tiedosto, mutta projektin index.html ylikirjoittaa sen.
 
 Kuvassa \ref{fig:how-vagrant-works} on visualisoitu kaksisuuntainen kansion synkronointi.
 
@@ -147,7 +147,7 @@ config.vm.synced_folder ".", "/var/www/html"
 
 \subsection{Vagrantin yhteenveto}
 
-Lopullinen Vagrantfile on kuvion \ref{listing:vagrant-final-apache-setup} mukainen. Vagrantfilessä määriteltiin ensiksi "pohjaboxi", joka määrittelee käyttöjärjestelmän. Seuraavaksi ohjataan virtuaalikoneen portti 80 osoittamaan isäntäkoneen porttiin 8080. Synkronoidaan nykyinen projektikansio Apachen html-juureen ja lopuksi määritellään skripti, joka ajetaan virtuaalikoneella kun kone on käynnistetty.
+Lopullinen Vagrantfile on kuvion \ref{listing:vagrant-final-apache-setup} mukainen. Vagrantfilessä määriteltiin ensiksi "pohjaboxi", joka määrittelee käyttöjärjestelmän. Seuraavaksi ohjataan virtuaalikoneen portti 80 osoittamaan isäntäkoneen porttiin 8080. Synkronoidaan nykyinen projektikansio Apachen html-juureen. Lopuksi määritellään skripti, joka ajetaan kun virtuaalikone luotu ja käynnistetty ensimmäistä kertaa.
 
 \begin{lstlisting}[
   label=listing:vagrant-final-apache-setup,
@@ -167,7 +167,7 @@ end
 \end{lstlisting}
 
 
-Vaikka Vagrant näyttää ensi silmäyksellä olevan täydellinen ratkaisu kaikille projekteille on siinä omat huonot puolensa. Koska Vagrant luo täysiverisiä virtuaalikoneita isäntäkoneen sisään, niin Vagrant käyttää keskusmuistia huomattavasti enemmän kuin normaalisti. Oman kokemukseni mukaan 8 gigatavua keskusmuistia on riittänyt. Tosin laajemmin projekteissa, joissa esimerkiksi tarkkaillaan satojen tiedostojen muutoksia, voi 8 gigatavua keskusmuistia olla liian vähän. Olen kuullut kollegoiltani, joilla on 8 gigatavua keskusmuistia, että välillä virtuaalikone pitää käynnistää uudelleen ettei isäntäkone kävisi niin korkeassa lämpötilassa koko päivää.
+Vagrant näyttää ensi silmäyksellä olevan täydellinen ratkaisu kaikille projekteille, on siinä omat huonot puolensa. Vagrant vie paljon isäntäkoneen keskusmuistia, koska se luo täysiverisiä virtuaalikoneita isäntäkoneen sisään. Oman kokemukseni mukaan 8 gigatavua keskusmuistia on riittänyt. Tosin laajemmissa projekteissa, joissa tarkkaillaan satojen tiedostojen muutoksia, voi 8 gigatavua keskusmuistia olla liian vähän. Virtuaalikone kannattaa välillä käynnistää uudestaan, jos isäntäkone käy liian kuumata. Tällaisissa tilanteissa kannattaa harkita keskusmuistin lisäämistä isäntäkoneeseen.
 
 Kannattaa myös miettiä milloin projektille on järkevää lisätä virtuaalikone kehitysympäristöksi. Yleisenä nyrkkisääntönä on, että jos koodia tulee kehittämään useampi kehittäjä, niin virtuaalikoneympäristö kannattaa olla. Myös jos projekti sisältää paljon riippuvuuksia, niin on hyvä miettiä läpi virtuaalikoneesta saatavat hyödyt.
 
@@ -175,7 +175,7 @@ Alle on koottu Vagrantin hyödyt ja mahdolliset haitat.
 
 Vagrantin hyödyt
 \begin{bullet-list}
-  \item Ei tarvitse omalle (isäntä)koneelle asentaa mitään projekti spesifejä riippuvuuksia.
+  \item Isäntäkoneelle, ei tarvitse asentaa projektille spesifejä riippuvuuksia.
   \item Projektin kehitysympäristön asennustiedot ovat versionhallinnassa Vagrantfilessä ja skripteissä.
   \item Ympäristön saa helposti pystyyn vain komentamalla \code{vagrant up}.
   \item Kaikilla kehittäjillä sama kehitysympäristö.
@@ -189,11 +189,11 @@ Vagrantin haitat
 
 \subsection{Vagrantin ongelmat}
 
-Vaikka Vagrant lupaa kotisivuillaa \cite{link:vagrant}, että Vagrant luo identtiset ympäristöt kaikille tiimissä, tätä ei kuitenkaan täysin ongelmitta saavuteta.
+Vagrant lupaa kotisivuillaa \cite{link:vagrant}, että se luo identtiset ympäristöt kaikille tiimissä, tätä ei kuitenkaan täysin ongelmitta saavuteta.
 
-Suurin ongelman aiheuttaja on isäntäkoneessa oleva Windows. Yleensä Windowssille tarvitsee tehdä ylimääräisiä säätöjä esimerkiksi kun tiedostoja synkronoidaan isäntäkoneelta virtuaalikoneelle. Vagrantin perus tiedostojen synkronointi on hidas \cite{link:vagrant-shared-folders} kun synkronoitavana on paljon tiedostoja. Tilannetta voidaan nopeuttaa vaihtamalla synkronointi tavaksi NFS \cite{link:nfs-wiki}, joka on testituloksien mukaan huomattavasti nopeampaa. Windows ei kuitenkaan tue NFS:ää, joten se kannattaa ottaa huomioon isäntäkonetta valittaessa.
+Eniten ongelmia tulee, jos isäntäkoneessa on Windows. Yleensä Windowsille tarvitsee tehdä ylimääräisiä säätöjä esimerkiksi kun tiedostoja synkronoidaan isäntäkoneelta virtuaalikoneelle. Vagrantissa oletuksena oleva tiedostojen synkronointi on hidas \cite{link:vagrant-shared-folders} kun synkronoitavana on paljon tiedostoja. Tilannetta voidaan nopeuttaa vaihtamalla synkronointi tavaksi NFS \cite{link:nfs-wiki}. Se on testituloksien mukaan nopeampi. Windows ei tue NFS:ää, mikä kannattaa ottaa huomioon isäntäkonetta valittaessa.
 
-Toinen yleinen ongelma Windowssissa on kun projektissa on kun projektin riippuvuuksia asennetaan npm:n avulla. Kun kutsutaan \code{npm install} niin npm hakee projektin riippuvuudet, sen jälkeen riippuvuuksien riippuvuudet sitten niiden riippuvuudet ja niin edelleen. Tästä aiheutuu pitkiä tiedostopolkuja. Kuviossa \ref{listing:npm-error-long-path} on esimerkki npm:n virheestä, joka sisältää pitkän tiedostopolun.
+Toinen yleinen ongelma Windowsissa ilmenee, kun projektin riippuvuuksia asennetaan npm:n avulla. Komennettaessa \code{npm install} npm hakee projektin riippuvuudet, jonka jälkeen riippuvuuksien riippuvuudet sitten niiden riippuvuudet ja niin edelleen. Tästä aiheutuu pitkiä tiedostopolkuja, joita Windows ei osaa kunnolla käsitellä. Kuviossa \ref{listing:npm-error-long-path} on esimerkki npm:n virheestä, joka sisältää pitkän tiedostopolun.
 
 Pitkien tiedostopolkujen ongelmaa on ratkaistu muun muassa säätämällä Vagrantin lähdekoodissa synkronoitavien kansioiden käsittelyä \cite{link:fix-npm-on-vagrant-on-windows}. Tai asentamalla riippuvuudet ilman linkkejä \cite{link:npm-does-not-work-in-vagrant}. Yksi paras ratkaisuista on tehdä virtuaalikoneen sisällä symbolinen linkki riippuvuuskansiosta, jolloin Windows ei yritä synkata kansiota isäntäkoneelle, eikä mene sekaisin.
 
@@ -210,4 +210,4 @@ node_modules/bin-wrapper/node_modules/download-status/
 node_modules/lpad-align/package.json'
 \end{lstlisting}
 
-Vaikka Vagrant mahdollistaa kehitysympäristö pystytyksen lähes millä tahansa isäntäkoneella kannattaa kuitenkin tiimin sisällä olla samat käyttöjärjestelmät. Tai edes pelkkiä unix-pohjaisia käyttöjärjestelmiä. Näin säästytään mahdollisilta lisäsäädöiltä, jotka pääasiassa johtuvat Windowssista.
+Vaikka Vagrant mahdollistaa kehitysympäristön pystytyksen lähes millä tahansa isäntäkoneella, kannattaa tiimin sisällä olla samat käyttöjärjestelmät. Toiseksi parasvaihtoehto on käyttää unix-pohjaisia käyttöjärjestelmiä. Näin säästytään mahdollisilta lisäsäädöiltä, jotka pääasiassa johtuvat Windowssista.
