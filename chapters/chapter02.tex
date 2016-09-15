@@ -156,7 +156,7 @@ Nyt kun mennään takaisin virtuaalikoneen sisään ja siirrytään kansioon \co
 
 \begin{figure}[h]
   \includegraphics[width=\textwidth]{ansible-running}
-  \caption{Ansible tuloste kun se ajaa tehtäviä}
+  \caption{Ansiblen tuloste kun se ajaa tehtäviä}
   \label{fig:ansible-running}
 \end{figure}
 
@@ -246,19 +246,19 @@ Kuviosta \ref{listing:ansible-hosts} nähdään hosts-tiedoston sisältö. Hakas
 126.138.117.250
 \end{lstlisting}
 
-Seuraavaksi ansible kansioon lisätään ansible.cfg-tiedosto. Tällä tiedostolla voidaan muuttaa joitakin Ansiblen asetuksia, vaikkakin peruskäyttäjille oletusasetukset ovat yleensä riittävät. Tiedoston sisältö näkyy kuviosta \ref{listing:ansible-config}. Tiedostossa kerrotaan mistä Ansiblen täytyy etsiä hosts-tiedostoa. Oletuksena hosts-tiedostoa etsitään polusta \code{etc/ansible/hosts} \cite{link:ansible-inventory}. Kohdekoneet halutaan määrittää projektikohtaisesti ja oletuspolussa oleva hosts-tiedosto ei edes tulisi projektin repositorioon mukaan. Kun käyttää Ansiblen komentoja suoraan komentoriviltä ja haluaa, että Ansibe käyttää tätä cfg-tiedostoa on tärkeää olla samassa kansiossa, jossa cfg-tiedosto on. Muuten Ansible käyttää oletus hosts-tiedostoa.
+Seuraavaksi ansible-kansioon lisätään ansible.cfg-tiedosto. Tällä tiedostolla voidaan muuttaa joitakin Ansiblen asetuksia, vaikkakin peruskäyttäjille oletusasetukset ovat yleensä riittävät. Tiedoston sisältö näkyy kuviosta \ref{listing:ansible-config}. Tiedostossa kerrotaan mistä Ansiblen täytyy etsiä hosts-tiedostoa. Oletuksena hosts-tiedostoa etsitään polusta \code{etc/ansible/hosts} \cite{link:ansible-inventory}. Kohdekoneet halutaan määrittää projektikohtaisesti ja oletuspolussa oleva hosts-tiedosto ei edes tulisi projektin repositorioon mukaan. Kun käyttää Ansiblen komentoja suoraan komentoriviltä ja haluaa, että Ansibe käyttää tätä cfg-tiedostoa on tärkeää olla samassa kansiossa, jossa cfg-tiedosto on. Muuten Ansible käyttää oletusarvoisesti hosts-tiedostoa.
 
-Nyt Vagrantfileen pitää lisätä asetukset, jotka kertovat Vagrantille  mistä se löytää kohdekoneet, jotka vaativat asennusta. Vagrantfileen lisätään \code{inventory\_path} arvo, joka kertoo missä hosts-tiedosto sijaitsee \cite{link:vagrant-ansible-settings}. Lisäksi annetaan \code{limit} ominaisuuden arvoksi local, joka rajoittaa asennukset kohde koneisiin, jotka kuuluvat ryhmään "local". Myös Vagranfilessä pitää muuttaa playbookin sijainnin polku, koska playbook sijaitsee nyt ansible kansiossa. Lopuksi annetaan virtuaalikoneelle aikaisemmin arvottu ip-osoite. Lopullinen Vagranfile näkyy kuviossa \ref{listing:final-node-vagrantfile-with-roles}.
+Nyt Vagrantfileen pitää lisätä asetukset, jotka kertovat Vagrantille  mistä se löytää kohdekoneet, jotka vaativat asennusta. Vagrantfileen lisätään \code{inventory\_path} arvo, joka kertoo missä hosts-tiedosto sijaitsee \cite{link:vagrant-ansible-settings}. Lisäksi annetaan \code{limit} ominaisuuden arvoksi local, joka rajoittaa asennukset kohdekoneisiin, jotka kuuluvat ryhmään "local". Myös Vagranfilessä pitää muuttaa playbookin sijainnin polku, koska playbook sijaitsee nyt ansible kansiossa. Lopuksi annetaan virtuaalikoneelle aikaisemmin arvottu ip-osoite. Lopullinen Vagranfile näkyy kuviossa \ref{listing:final-node-vagrantfile-with-roles}.
 
 Viimeiseksi muutetaan playbook.yml tiedostosta hosts-kohdan arvoksi local, koska nyt saatavilla on hosts tiedosto ja haluamme kohdistaa asennuksen vain kohdekoneille, jotka ovat ryhmässä local.
 
-Tässä vaiheessa virtuaalikoneiden asennus on valmisteltu monien virtuaalikoneiden käyttöä varten ja enemmän parhaiden käytäntöjen suuntaan. Seuraavaksi jaotellaan eli ohjelmien asennus rooleihin.
+Tässä vaiheessa virtuaalikoneiden asennus on valmisteltu monien virtuaalikoneiden käyttöä varten ja enemmän parhaiden käytäntöjen suuntaan. Seuraavaksi jaotellaan eri ohjelmien asennus rooleihin.
 
-Kaikki roolit pitää olla roles-kansiossa. Sen alle lisätään kansio, jonka nimi on halutunut roolin nimi esimerkiksi: nodejs. Kaikki rooliin liittyvät tehtävät tulevat tasks kansion alle roolin omassa kansiossa. Kaikkien tasks kansioiden tulee sisältää main.yml, joka kokoaa kaikki kyseiseen rooliin liittyvät tehtävät. Siirtymällä ansible kansioon ja ajamalla \code{mkdir -p roles/nodejs/tasks} voidaan luoda kaikki halutut kansiot Nodelle yhdellä kommennolla.
+Kaikki roolit pitää olla roles-kansiossa. Sen alle lisätään kansio, jonka nimi on halutun roolin nimi, esimerkiksi: nodejs. Kaikki rooliin liittyvät tehtävät tulevat tasks-kansion alle roolin omaan kansioon. Kaikkien tasks-kansioiden tulee sisältää main.yml, joka kokoaa kaikki kyseiseen rooliin liittyvät tehtävät. Siirtymällä ansible-kansioon ja ajamalla \code{mkdir -p roles/nodejs/tasks} voidaan luoda kaikki halutut kansiot Nodelle yhdellä kommennolla.
 
-Lisätään tasks kansion alle main.yml tiedosto. Tiedoston sisällöksi leikataan playbook.yml tiedostosta kaikki Noden asentamiseen liittyvät tehtävät. Tehtävien rakennetta ei tarvitse muuttaa, sillä main.yml-tiedostossa voi alkaa suoraa luettelemaan tehtäviä aikaisemmalla rakenteella: nimi ja moduuli.
+Lisätään tasks-kansion alle main.yml-tiedosto. Tiedoston sisällöksi leikataan playbook.yml-tiedostosta kaikki Noden asentamiseen liittyvät tehtävät. Tehtävien rakennetta ei tarvitse muuttaa, sillä main.yml-tiedostossa voi alkaa suoraa luettelemaan tehtäviä aikaisemmalla rakenteella: nimi ja moduuli.
 
-Seuraavaksi tehdään samat asiat mongodb-roolille. Luodaan sama kansiorakenne ja lisätään main.yml tiedosto. Kuviossa \ref{listing:install-mongo} on kuvattu main.yml-tiedoston sisältö, joka asentaa MongoDB:n.
+Seuraavaksi tehdään samat asiat mongodb-roolille. Luodaan sama kansiorakenne ja lisätään main.yml-tiedosto. Kuviossa \ref{listing:install-mongo} on kuvattu main.yml-tiedoston sisältö, joka asentaa MongoDB:n.
 
 \begin{lstlisting}[
   label=listing:install-mongo,
@@ -309,11 +309,11 @@ Seuraavaksi tehdään samat asiat mongodb-roolille. Luodaan sama kansiorakenne j
   command: dpkg-reconfigure locales
 \end{lstlisting}
 
-Kaikki roolit ovat nyt luotu joten ne voidaan yhdistää playbookkiin. Playbookkiin lisätään avain "roles" ja sille annetaan lista halutuista rooleista. Lisätään rolesin arvoksi siis nodejs ja mongodb. Kuviossa \ref{listing:playbook-with-roles} näkyy kuinka yksinkertainen playbook on nyt.
+Kaikki roolit ovat nyt luotu. joten ne voidaan yhdistää playbookkiin. Playbookkiin lisätään avain \enquote{roles} ja sille annetaan lista halutuista rooleista. Lisätään rolesin arvoksi siis nodejs ja mongodb. Kuviossa \ref{listing:playbook-with-roles} näkyy kuinka yksinkertainen playbook on nyt.
 
-Lopullinen projektin ansible kansion rakenne näkyy kuvassa \ref{fig:ansible-folder-structure}. Nyt asennettavien ohjelmien osiot ovat selkeästi erillään toisistaan, jolloin monta kehittäjää voi yhtä aikaa rakentaa ympäristön eri osioita häiritsemättä toisiaan. Lisäksi jos esimerkiksi mongodb rooli halutaan toiseen projektiin voidaan se helposti kopioida.
+Lopullinen projektin ansible-kansion rakenne näkyy kuvassa \ref{fig:ansible-folder-structure}. Nyt asennettavien ohjelmien osiot ovat selkeästi erillään toisistaan, jolloin monta kehittäjää voi yhtä aikaa rakentaa ympäristön eri osioita häiritsemättä toisiaan. Lisäksi, jos esimerkiksi mongodb rooli halutaan toiseen projektiin, se voidaan helposti kopioida.
 
-Nyt ympäristö saadaan jälleen pystyyn kutsumalla \code{vagrant up}. Kun ollaan virtuaalikoneen sisällä kutsutaan \code{mongo}, jolla tarkastetaan, että päästäänkö mongodb-komentoriville. Jos päästään niin mongodb on asennettu oikein. Lisäksi kannattaa kokeilla toimiiko aikaisemmin rakennettu Node-ohjelma vielä. Jos virheitä ei ole tullut missään kohtaa niin ympäristö on onnistuneesti asennettu.
+Nyt ympäristö saadaan jälleen pystyyn kutsumalla \code{vagrant up}. Kun ollaan virtuaalikoneen sisällä kutsutaan \code{mongo}, jolla tarkastetaan, että päästäänkö mongodb-komentoriville. Jos päästään on MongoDB asennettu oikein. Lisäksi kannattaa kokeilla toimiiko aikaisemmin rakennettu Node-ohjelma vielä. Ympäristö on onnistuneesti asennettu, jos virheitä ei ole tullut.
 
 \begin{lstlisting}[
   label=listing:playbook-with-roles,
@@ -332,7 +332,7 @@ Nyt ympäristö saadaan jälleen pystyyn kutsumalla \code{vagrant up}. Kun ollaa
 
 \begin{figure}[h]
   \includegraphics[]{ansible-folder-structure}
-  \caption{Ansible kansion rakenne}
+  \caption{Ansible-kansion rakenne}
   \label{fig:ansible-folder-structure}
 \end{figure}
 
@@ -371,8 +371,6 @@ inventory = ./hosts
 
 \subsection{Ansiblen ongelmat}
 
-Vaikka kaikki samoista määrittelyistä tehdyt virtuaalikoneet ovat identtisiä ja niiden pitäisi toimia isäntäkoneesta huolimatta, ei ongelmilta kuitenkaan voida välttyä. Windowsilla Ansiblen asennus ei mene täysin suoraviivaisesti. AnsibleWorks:n CTO on kertonut, että Windowssia ei ainakaan lähiaikoina aiota tukea isäntäkoneena Ansiblen kanssa \cite{link:windows-support-for-ansible}.
+Vaikka kaikki samoista määrittelyistä tehdyt virtuaalikoneet ovat identtisiä ja niiden pitäisi toimia isäntäkoneesta huolimatta, ei ongelmilta kuitenkaan voida välttyä. Windowsilla Ansiblen asennus ei mene täysin suoraviivaisesti. AnsibleWorks:n CTO on kertonut, että Windowsia ei ainakaan lähiaikoina aiota tukea isäntäkoneena Ansiblen kanssa \cite{link:windows-support-for-ansible}.
 
-Windows:lle saa kuitenkin asennettua Ansiblen säätämällä. Yleisin ratkaisu on käyttää Cygwin:ä, jolla saa asennettua unix-pohjaisten järjestelmien paketteja Windowsille \cite{link:cygwin}. Toinen kiertoreitti on asentaa Ansible virtuaalikoneelle. Käytännössä tämä tarkoittaa, että Vagrant provisioi ainoastaan Ansible asennuksen "vagrant up" vaiheessa. Virtuaalikoneen sisälle viedään kaikki Ansible-skriptit. Kun on siirrytty virtuaalikoneen sisälle niin sitten ajetaan Ansible-skriptit. Näin isäntäkoneella ei tarvitse olla asenettuna Ansiblea. Toinen hyvä syy käyttää tätä ratkaisua on sitoa Ansiblen asennus tiettyy versioon, jolloin Ansiblenkin versio on aina sama. Tällöin esimerkiksi jos Ansible muuttaa moduuleita vanhat skriptit eivät voi mennä rikki.
-
-Muista kertoa ansiblen sivusta galaxy.ansible.com
+Windowsille saa kuitenkin asennettua Ansiblen säätämällä. Yleisin ratkaisu on käyttää Cygwin:ä, jolla saa asennettua unix-pohjaisten järjestelmien paketteja Windowsille \cite{link:cygwin}. Toinen kiertoreitti on asentaa Ansible virtuaalikoneelle. Käytännössä tämä tarkoittaa, että Vagrant provisioi ainoastaan Ansible-asennuksen \enquote{vagrant up} vaiheessa. Virtuaalikoneen sisälle viedään kaikki Ansible-skriptit. Kun on siirrytty virtuaalikoneen sisälle, voidaan ajaa Ansible-skriptit. Näin isäntäkoneella ei tarvitse olla asennettuna Ansiblea. Toinen hyvä syy käyttää tätä ratkaisua on sitoa Ansiblen asennus tiettyy versioon, jolloin Ansiblenkin versio on aina sama. Tällä ratkaisulla aikaisemmin luodut playbookit eivät voi mennä rikki, koska Ansiblen API on aina sama.
