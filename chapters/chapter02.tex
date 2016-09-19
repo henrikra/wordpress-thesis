@@ -58,7 +58,7 @@ Sitten luodaan playbook.yml tiedosto, joka on kuvattu kuviossa \ref{listing:base
 
 Ensin määritellään hostit eli mille kohdekoneille kyseinen playbook suoritetaan. Tässä tapauksessa voidaan määritellä kaikki kohdekoneet, koska Ansiblea käskytetään Vagrantin kautta. Täten vain kohteena olevalle virtuaalikoneelle asennetaan riippuvuuksia \cite{link:comprehensive-ansible-tutorial}. Yleisesti kohteiksi ei laiteta kaikkia mahdollisia kohdekoneita. Kohteina normaalisti olisi esimerkiksi dev (kehitysympäristö), staging (testausympäristö) tai production (tuotantoympäristö).
 
-Määrittely true avaimelle \enquote{become} tarkoittaa, että kaikki playbookissa olevat tehtävät ajetaan root-oikeuksilla. Eli sama asia kuin lisäisi esimerkiksi asennuskomentojen eteen "sudo". Tällä tavalla ohjelmia voidaan ylipäätään asentaa kohdekoneille \cite{link:ansible-configuration-file}.
+Määrittely true avaimelle \enquote{become} tarkoittaa, että kaikki playbookissa olevat tehtävät ajetaan root-oikeuksilla. Eli sama asia kuin lisäisi esimerkiksi asennuskomentojen eteen "sudo". Tällä tavalla ohjelmia voidaan ylipäätään asentaa kohdekoneille. \cite{link:ansible-configuration-file}
 
 Jotta voidaan määritellä käyttäjätunnus, jolla tehtäviä ajetaan kohdekoneella täytyy määritelmälle \enquote{remote\_user} antaa arvo. Virtuaalikoneen tapauksessa arvoksi laitetaan vagrant, koska se on Vagrant virtuaalikoneiden oletuskäyttäjä.
 
