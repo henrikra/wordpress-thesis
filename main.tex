@@ -63,6 +63,11 @@
 
 \usepackage{lastpage}
 
+\usepackage{chngcntr}
+\counterwithout{figure}{chapter}
+\AtBeginDocument{\counterwithout{lstlisting}{section}}
+
+
 \begin{document}
   \input{cover}
 	
