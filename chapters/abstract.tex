@@ -8,7 +8,7 @@
    \setlength{\footskip}{5pt}
 }
 
-\chapter*{Abstract}
+\chapter*{Tiivistelmä}
 \thispagestyle{abstract}
 
 \begin{tabular}{|l|l|l|}
@@ -32,6 +32,39 @@
 Kehitysympäristö virtualisoitiin ensin Vagrantin avulla. Vagrant loi virtuaalikoneita, johon asennettiin shell-skriptin avulla halutut projektin riippuvuudet. Sen jälkeen tehtiin monimutkaisempi esimerkki Ansiblen avulla, joka toimii hyvin yhteistyössä Vagrantin kanssa. Ansiblella tehtiin playbookeja, joilla pystyy selkeämmin jakamaan riippuvuuksien asennuksen omiin rooleihin. Tämä on selkeämpi lähestymistapa pelkkiin shell-skripteihin verrattuna. \newline
 
 Lopputuloksena esiteltiin muutamia eri kehitysympäristöjen asennuksia. Nämä virtuaaliset kehitysympäristöt minimoivat ongelmia, jotka esiintyvät yleisimmin, kun kehittäjillä ei ole yhteistä virtuaalikehitysympäristöä. 
+
+} \\
+  \hline
+  Avainsanat & Virtualisointi, Vagrant, Ansible \\
+  \hline
+\end{tabular}
+
+\chapter*{Abstract}
+\thispagestyle{abstract}
+
+\begin{tabular}{|l|l|l|}
+  \hline
+  Tekijä(t) & Henrik Raitasola \\
+  Otsikko & Kehitysympäristön virtualisointi \\
+  ~ & ~ \\
+  Sivumäärä & \pageref{LastPage} sivua \\
+  Aika & \today \\
+  \hline
+  Tutkinto & Insinööri (AMK) \\
+  \hline
+  Koulutusohjelma & Tietotekniikka \\
+  \hline
+  Suuntautumisvaihtoehto & Ohjelmistotekniikka \\
+  \hline
+  Ohjaaja(t) & Lehtori Ilpo Kuivanen \\
+  \hline
+  \multicolumn{2}{| p{\textwidth} |}{The purpose of this thesis was to solve most common development environment problems developers have. Most of the time the problems are caused by the variation of developer's computers such as operating system. Some of the problems are caused by specific project dependencies. The most common comment is "It works on my machine!" when for mystical reason the same way installed development environment works on other developer's computer and on other's doesn't. These problems are going to be solved by virtualization of development environment.
+\newline
+
+Development environment was first virtualizated with Vagrant. Vagrant created virtual machines in which project dependencies were installed by shell-script. Next more complicated example was made with Ansible which worked well with Vagrant. Playbooks were created with Ansible. Playbooks help separating installation of dependencies to own roles. This approach is more clear compared to just shell-scripts.
+\newline
+
+As a result couple different installations of development environments were introduced. Virtual development environments minimize problems that are usually caused when developers don't have common virtual environment available.
 
 } \\
   \hline
