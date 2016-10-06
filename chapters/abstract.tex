@@ -37,7 +37,7 @@
   \hline
   Ohjaaja(t) & Lehtori Ilpo Kuivanen \\
   \hline
-  \multicolumn{2}{| p{\textwidth} |}{Tämän insinöörityön aiheena oli ratkaista yleisimpiä kehittäjien ongelmia, jotka liittyvät kehitysympäristöön. Usein ongelmat johtuvat kehittäjien tietokoneiden erilaisuuksista, kuten käyttöjärjestelmästä ja siihen asennettujen projektikohtaisten riippuvuuksien eriävistä versioista. Yleisin lausahdus on "Toimii minun koneellani", kun mystisestä syystä samalla tavalla asennettu kehitysympäristö toimii toisella kehittäjällä ja toisella ei. Ongelmia halutaan ratkaista virtualisoimalla kehitysympäristö. \newline
+  \multicolumn{2}{| p{\textwidth} |}{Tämän insinöörityön aiheena oli ratkaista yleisimpiä kehittäjien ongelmia, jotka liittyvät kehitysympäristöön. Usein ongelmat johtuvat kehittäjien tietokoneiden erilaisuuksista, kuten käyttöjärjestelmästä ja siihen asennettujen projektikohtaisten riippuvuuksien eriävistä versioista. Yleisin lausahdus on \enquote{Toimii minun koneellani}, kun mystisestä syystä samalla tavalla asennettu kehitysympäristö toimii toisella kehittäjällä ja toisella ei. Ongelmia halutaan ratkaista virtualisoimalla kehitysympäristö. \newline
 
 Kehitysympäristö virtualisoitiin ensin Vagrantin avulla. Vagrant loi virtuaalikoneita, johon asennettiin shell-skriptin avulla halutut projektin riippuvuudet. Sen jälkeen tehtiin monimutkaisempi esimerkki Ansiblen avulla, joka toimii hyvin yhteistyössä Vagrantin kanssa. Ansiblella tehtiin playbookeja, joilla pystyy selkeämmin jakamaan riippuvuuksien asennuksen omiin rooleihin. Tämä on selkeämpi lähestymistapa pelkkiin shell-skripteihin verrattuna. \newline
 
@@ -68,7 +68,7 @@ Lopputuloksena esiteltiin muutamia eri kehitysympäristöjen asennuksia. Nämä 
   \hline
   Instructor(s) & Ilpo Kuivanen, Lecturer \\
   \hline
-  \multicolumn{2}{| p{\textwidth} |}{The purpose of this thesis was to solve most common development environment problems developers have. Most of the time the problems are caused by the variation of developer's computers such as operating system. Some of the problems are caused by specific project dependencies. The most common comment is "It works on my machine!" when for mystical reason the same way installed development environment works on other developer's computer and on other's doesn't. These problems are going to be solved by virtualization of development environment.
+  \multicolumn{2}{| p{\textwidth} |}{The purpose of this thesis was to solve most common development environment problems developers have. Most of the time the problems are caused by the variation of developer's computers such as operating system. Some of the problems are caused by specific project dependencies. The most common comment is \enquote{It works on my machine!} when for mystical reason the same way installed development environment works on other developer's computer and on other's doesn't. These problems are going to be solved by virtualization of development environment.
 \newline
 
 Development environment was first virtualizated with Vagrant. Vagrant created virtual machines in which project dependencies were installed by shell-script. Next more complicated example was made with Ansible which worked well with Vagrant. Playbooks were created with Ansible. Playbooks help separating installation of dependencies to own roles. This approach is more clear compared to just shell-scripts.
